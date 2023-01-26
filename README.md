@@ -15,6 +15,8 @@ silency measure per trovare rotture.
 Provare gradiente per riconoscere pattern
 smoothness
 
+detect shape(small circles) and remove them
+
 estrarre n immagini diverse con filtri/altro e passarle in input ad una ccn (come se l'input layer fosse un layer di feature maps)
 
 
