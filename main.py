@@ -79,3 +79,4 @@ if __name__ == '__main__':
     for label in np.array_split(labels_info, 10):
         threading.Thread(target=obtain_working_cells, args=(label,)).start()
     # obtain_working_cells(labels_info)
+    asda
