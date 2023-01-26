@@ -52,8 +52,7 @@ def thres_finder(img, init_thres=60, delta_T=1.0):
 
 
 def basic_global_thresholding(img):
-    _, img = cv2.threshold(img, 125, 255, cv2.THRESH_BINARY)
-    plt.imshow(img)
+    _, img = cv2.threshold(img, 70, 255, cv2.THRESH_BINARY)
     return img
 
 
@@ -68,15 +67,19 @@ def gradient(img):
 
 def obtain_working_cells(labels_info, looking_cells, allowed_images, saving_folder):
     for _, file in labels_info.iterrows():
-        if file.label == looking_cells and file.path in allowed_images:
-            # img = standardize_image(cv2.imread(file.path, cv2.IMREAD_GRAYSCALE))
+        if file.label == looking_cells and (allowed_images is None or file.path in allowed_images):
             img = cv2.imread(file.path, cv2.IMREAD_GRAYSCALE)
-            cv2.imwrite(new_file_path(file.path, saving_folder), (gradient(img) * 10))
+            manipulated_img = standardize_image(img)
+            manipulated_img = (gradient(manipulated_img) * 10).astype('float32')
+            manipulated_img = cv2.medianBlur(manipulated_img, 5)
+            manipulated_img = img - manipulated_img
+            manipulated_img = basic_global_thresholding(manipulated_img)
+            cv2.imwrite(new_file_path(file.path, saving_folder), manipulated_img)
             print(f'done {file.path}')
 
 
 if __name__ == '__main__':
     labels_info = pd.read_csv('labels.csv', delim_whitespace=True)
     for label in np.array_split(labels_info, 10):
-        threading.Thread(target=obtain_working_cells, args=(label, WORKING, IN_EXAM_W, 'w_grad/')).start()
-        #threading.Thread(target=obtain_working_cells, args=(label, NOT_WORKING, IN_EXAM_NOT_W, 'not_w_grad')).start()
+        threading.Thread(target=obtain_working_cells, args=(label, WORKING, None, 'w_grad/')).start()
+        threading.Thread(target=obtain_working_cells, args=(label, NOT_WORKING, None, 'not_w_grad/')).start()

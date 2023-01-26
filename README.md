@@ -15,6 +15,8 @@ silency measure per trovare rotture.
 Provare gradiente per riconoscere pattern
 smoothness
 
+estrarre n immagini diverse con filtri/altro e passarle in input ad una ccn (come se l'input layer fosse un layer di feature maps)
+
 
 
 Tentativi fatti
@@ -23,7 +25,10 @@ normalizzazione immagine -> buoni risultati
 calcolo del gradiente con filtro laplaciano -> *2 perchè troppo anonimo
 gradiente sottratto a immagini per evidenziare problemi
 
+
 analisi concetrata sul gradiente:
     incremento di 10 volte -> notiamo molto rumore sale e pepe
-    applicazione gradiente ad immagini non std
-    -- implementazione filtro per rimozione sale e pepe
+    applicazione gradiente ad immagini non std -> rumore meno evidente, forse è più facile applicare i filtri a queste immagini piuttosto che a quelle standardizzate
+    implementazione filtro per rimozione sale e pepe
+    ottenuta buona sequenza con: std, grad, blur e sottrazione all'immagine
+    provo il threshold -> non ottengo risultati particolarmente discriminativi, va provato più approfonditamente
