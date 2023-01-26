@@ -13,6 +13,9 @@ TRAIN_PATH = 'bootstrap_folds/train_folds/'
 WORKING = 0
 NOT_WORKING = 1
 
+IN_EXAM_W = ['images/cell0004.png', 'images/cell0067.png', 'images/cell0106.png']
+IN_EXAM_NOT_W = ['images/cell0165.png', 'images/cell0220.png', 'images/cell0001.png', 'images/cell0002.png']
+
 
 def new_file_path(current, base_folder):
     return base_folder + current.split('/')[1]
@@ -54,29 +57,26 @@ def basic_global_thresholding(img):
     return img
 
 
-def standardize_image(img):
-    alpha = 2.  # control contrast
-    beta = -155  # control brightness
-
-    img_new = alpha * img + beta
-    return np.clip(img_new, 0, 255).astype(np.uint8)  # Given an interval, values
+def standardize_image(image):
+    image = (image - image.min()) / (image.max() - image.min())
+    return rescale_intensity(image, (0, 1), (0, 255))
 
 
-def obtain_working_cells(labels_info):
+def gradient(img):
+    return cv2.Laplacian(img, cv2.CV_64F)
+
+
+def obtain_working_cells(labels_info, looking_cells, allowed_images, saving_folder):
     for _, file in labels_info.iterrows():
-        if file.label == NOT_WORKING:
+        if file.label == looking_cells and file.path in allowed_images:
+            # img = standardize_image(cv2.imread(file.path, cv2.IMREAD_GRAYSCALE))
             img = cv2.imread(file.path, cv2.IMREAD_GRAYSCALE)
-            thr_img = adaptive_threshold(img)
-            image = img
-            image = (image - image.min()) / (image.max() - image.min())
-            bright = rescale_intensity(image, (0, 1), (0, 255))
-            cv2.imwrite(new_file_path(file.path, 't4_not/'), bright)
+            cv2.imwrite(new_file_path(file.path, saving_folder), (gradient(img) * 10))
             print(f'done {file.path}')
 
 
 if __name__ == '__main__':
     labels_info = pd.read_csv('labels.csv', delim_whitespace=True)
     for label in np.array_split(labels_info, 10):
-        threading.Thread(target=obtain_working_cells, args=(label,)).start()
-    # obtain_working_cells(labels_info)
-    asda
+        threading.Thread(target=obtain_working_cells, args=(label, WORKING, IN_EXAM_W, 'w_grad/')).start()
+        #threading.Thread(target=obtain_working_cells, args=(label, NOT_WORKING, IN_EXAM_NOT_W, 'not_w_grad')).start()

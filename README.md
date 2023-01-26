@@ -14,3 +14,16 @@ normalizzare le immagini lavorando su brillantezza, alcune troppo scure.
 silency measure per trovare rotture.
 Provare gradiente per riconoscere pattern
 smoothness
+
+
+
+Tentativi fatti
+thresholding -> global, adaptive, otus (Non buoni risultati in generale, ok su immagini pulite ma aggiunge rumore a quelle scure)
+normalizzazione immagine -> buoni risultati
+calcolo del gradiente con filtro laplaciano -> *2 perchè troppo anonimo
+gradiente sottratto a immagini per evidenziare problemi
+
+analisi concetrata sul gradiente:
+    incremento di 10 volte -> notiamo molto rumore sale e pepe
+    applicazione gradiente ad immagini non std
+    -- implementazione filtro per rimozione sale e pepe
