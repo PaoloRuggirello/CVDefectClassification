@@ -26,6 +26,7 @@ thresholding -> global, adaptive, otus (Non buoni risultati in generale, ok su i
 normalizzazione immagine -> buoni risultati
 calcolo del gradiente con filtro laplaciano -> *2 perchè troppo anonimo
 gradiente sottratto a immagini per evidenziare problemi
+operazioni morfologiche -> opening, closing, dilatazioni e erosioni
 
 
 analisi concetrata sul gradiente:
@@ -34,3 +35,6 @@ analisi concetrata sul gradiente:
     implementazione filtro per rimozione sale e pepe
     ottenuta buona sequenza con: std, grad, blur e sottrazione all'immagine
     provo il threshold -> non ottengo risultati particolarmente discriminativi, va provato più approfonditamente
+
+analisi su opening:
+    sembra filtrare meglio opening con filtri circolare (11, 11)

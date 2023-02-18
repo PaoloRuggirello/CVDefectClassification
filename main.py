@@ -14,7 +14,7 @@ WORKING = 0
 NOT_WORKING = 1
 
 IN_EXAM_W = ['images/cell0004.png', 'images/cell0067.png', 'images/cell0106.png']
-IN_EXAM_NOT_W = ['images/cell0165.png', 'images/cell0220.png', 'images/cell0001.png', 'images/cell0002.png']
+IN_EXAM_NOT_W = ['images/cell0165.png', 'images/cell0220.png', 'images/cell0001.png', 'images/cell0002.png', 'images/cell0057.png']
 
 
 def new_file_path(current, base_folder):
@@ -68,12 +68,9 @@ def gradient(img):
 def obtain_working_cells(labels_info, looking_cells, allowed_images, saving_folder):
     for _, file in labels_info.iterrows():
         if file.label == looking_cells and (allowed_images is None or file.path in allowed_images):
-            img = cv2.imread(file.path, cv2.IMREAD_GRAYSCALE)
-            manipulated_img = standardize_image(img)
-            manipulated_img = (gradient(manipulated_img) * 10).astype('float32')
-            manipulated_img = cv2.medianBlur(manipulated_img, 5)
-            manipulated_img = img - manipulated_img
-            manipulated_img = basic_global_thresholding(manipulated_img)
+            img = cv2.imread(file.path)
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
+            manipulated_img = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
             cv2.imwrite(new_file_path(file.path, saving_folder), manipulated_img)
             print(f'done {file.path}')
 
@@ -81,5 +78,5 @@ def obtain_working_cells(labels_info, looking_cells, allowed_images, saving_fold
 if __name__ == '__main__':
     labels_info = pd.read_csv('labels.csv', delim_whitespace=True)
     for label in np.array_split(labels_info, 10):
-        threading.Thread(target=obtain_working_cells, args=(label, WORKING, None, 'w_grad/')).start()
-        threading.Thread(target=obtain_working_cells, args=(label, NOT_WORKING, None, 'not_w_grad/')).start()
+        threading.Thread(target=obtain_working_cells, args=(label, WORKING, IN_EXAM_W, 'w_grad/')).start()
+        threading.Thread(target=obtain_working_cells, args=(label, NOT_WORKING, IN_EXAM_NOT_W, 'not_w_grad/')).start()
