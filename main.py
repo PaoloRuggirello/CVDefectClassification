@@ -5,6 +5,8 @@ from matplotlib import pyplot as plt
 import threading
 from skimage.exposure import rescale_intensity
 
+from data.preprocessing import ELImgPreprocessing
+
 # 0 -> cell works
 # 1 -> cell doesn't work
 
@@ -76,7 +78,9 @@ def obtain_working_cells(labels_info, looking_cells, allowed_images, saving_fold
 
 
 if __name__ == '__main__':
-    labels_info = pd.read_csv('labels.csv', delim_whitespace=True)
-    for label in np.array_split(labels_info, 10):
-        threading.Thread(target=obtain_working_cells, args=(label, WORKING, IN_EXAM_W, 'w_grad/')).start()
-        threading.Thread(target=obtain_working_cells, args=(label, NOT_WORKING, IN_EXAM_NOT_W, 'not_w_grad/')).start()
+    preprocessing = ELImgPreprocessing()
+    preprocessing.preprocess()
+    # labels_info = pd.read_csv('labels.csv', delim_whitespace=True)
+    # for label in np.array_split(labels_info, 10):
+    #     threading.Thread(target=obtain_working_cells, args=(label, WORKING, IN_EXAM_W, 'w_grad/')).start()
+    #     threading.Thread(target=obtain_working_cells, args=(label, NOT_WORKING, IN_EXAM_NOT_W, 'not_w_grad/')).start()
