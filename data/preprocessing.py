@@ -35,7 +35,7 @@ class ELImgPreprocessing:
             # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
             # img = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
             img = cv2.resize(img, (self.IMG_SIZE, self.IMG_SIZE))  # resize the image
-            processed_data.append([np.array(img), np.eye(2)[label]]) #one-hot encoding W -> [1, 0] | NO_W -> [0, 1]
+            processed_data.append([np.array(img), label]) #one-hot encoding W -> [1, 0] | NO_W -> [0, 1]
 
             if label:
                 self.not_working += 1

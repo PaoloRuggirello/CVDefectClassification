@@ -139,13 +139,13 @@ def get_folds(path):
     for file_name in fold_files:
         fold = pd.read_csv(os.path.join(path, file_name), index_col=0, delimiter=',')
         folds.append(np.array(fold[fold.columns[0]].tolist()))
-        print(f'Added: {file_name}')
+        print(f'Read: {file_name}')
     return np.array(folds, dtype=object)
 
 
 if __name__ == '__main__':
-    # preprocessing = ELImgPreprocessing()
-    # preprocessing.preprocess()
+    preprocessing = ELImgPreprocessing()
+    preprocessing.preprocess()
     dataset = np.load(os.path.join(DATA_PATH_PROCESSED, "processed_data.npy"), allow_pickle=True)
     train_folds = get_folds(TRAIN_PATH)
     test_folds = get_folds(TEST_PATH)
@@ -154,6 +154,7 @@ if __name__ == '__main__':
         print(f'Iteration: {i}')
         train_fold = dataset[train_folds[i].astype(np.int64)]
         test_fold = dataset[test_folds[i].astype(np.int64)]
+
         print(train_fold.size)
         print(test_fold.size)
         print("-----------------\n\n")
