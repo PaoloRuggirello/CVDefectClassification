@@ -117,15 +117,15 @@ if __name__ == '__main__':
     #for image in os.listdir('images'):
     #    img = cv2.imread('images/' + image, cv2.IMREAD_GRAYSCALE)
     #    threading.Thread(target=crop_and_save, args=(img, image, drop_row, drop_column)).start()
-    # preprocessing = ELImgPreprocessing()
-    # preprocessing.preprocess()
+    preprocessing = ELImgPreprocessing()
+    preprocessing.preprocess()
 
 # get row with only 0
 # get columns with only 0
 # these are row and columns to drop
 # From real image to temp image -> take only pixels with coordinates of row - column != from column or row to drop
-    labels_info = pd.read_csv('labels.csv', delim_whitespace=True)
-    for label in np.array_split(labels_info, 10):
-        threading.Thread(target=obtain_working_cells, args=(label, WORKING, IN_EXAM_W, 'w_grad/')).start()
-        threading.Thread(target=obtain_working_cells, args=(label, NOT_WORKING, IN_EXAM_NOT_W, 'not_w_grad/')).start()
+ #   labels_info = pd.read_csv('labels.csv', delim_whitespace=True)
+ #   for label in np.array_split(labels_info, 10):
+ #       threading.Thread(target=obtain_working_cells, args=(label, WORKING, IN_EXAM_W, 'w_grad/')).start()
+ #       threading.Thread(target=obtain_working_cells, args=(label, NOT_WORKING, IN_EXAM_NOT_W, 'not_w_grad/')).start()
     
