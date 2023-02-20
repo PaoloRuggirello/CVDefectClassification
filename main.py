@@ -147,7 +147,7 @@ def get_folds(path):
 
 
 def save_model(_model, _model_folder, idx):
-    #model.save(os.path.join(_model_folder, f'/model_{idx}'))
+    model.save(os.path.join(_model_folder, f'/model_{idx}'))
     with open(os.path.join(_model_folder, f'modelsummary_{idx}.txt'), 'w') as f:
         with redirect_stdout(f):
             model.summary()
@@ -204,6 +204,7 @@ if __name__ == '__main__':
         )
         save_model(model, model_folder, i)
         y_pred = model.predict(x_test)
+        y_pred = y_pred > 0.5
         f1 = f1_score(y_test, y_pred)
         accuracy = accuracy_score(y_test, y_pred)
         analytics_table[str(i)]['f1'] = f1
