@@ -149,15 +149,7 @@ if __name__ == '__main__':
     # dataset = np.load(os.path.join(DATA_PATH_PROCESSED, "processed_data.npy"), allow_pickle=True)
     train_folds = get_folds(TRAIN_PATH)
     test_folds = get_folds(TEST_PATH)
-    print('Train index')
-    for index in train_folds[0]:
-        print(index)
-    print('End train index')
 
-    print('Test index')
-    for index in test_folds[0]:
-        print(index)
-    print('End test index')
     print('END')
     # test_folds = get_folds(TEST_PATH)
 # TODO -> rename train and test folds
