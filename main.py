@@ -147,7 +147,7 @@ def get_folds(path):
 
 
 def save_model(_model, _model_folder, idx):
-    model.save(os.path.join(_model_folder, f'/model_{idx}'))
+    model.save(os.path.join(_model_folder, f'model_{idx}'))
     with open(os.path.join(_model_folder, f'modelsummary_{idx}.txt'), 'w') as f:
         with redirect_stdout(f):
             model.summary()
