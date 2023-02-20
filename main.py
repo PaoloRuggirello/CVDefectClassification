@@ -9,8 +9,9 @@ from keras.models import Sequential
 from keras import layers
 
 from data.preprocessing import ELImgPreprocessing, DATA_PATH_PROCESSED
-from sklearn.metrics import accuracy_score, f1_score
-import shortuuid
+from contextlib import redirect_stdout
+from datetime import datetime
+from sklearn.metrics import f1_score, accuracy_score
 
 # 0 -> cell works
 # 1 -> cell doesn't work
@@ -26,10 +27,11 @@ IN_EXAM_NOT_W = ['images/cell0165.png', 'images/cell0220.png', 'images/cell0001.
 PREPROCESS = False
 
 densenet = DenseNet121(
-    weights=None,
+    weights='imagenet',
     include_top=False,
-    input_shape=(224, 224, 1)
+    input_shape=(224, 224, 3)
 )
+densenet.trainable = False
 
 
 def new_file_path(current, base_folder):
@@ -144,6 +146,21 @@ def get_folds(path):
     return np.array(folds, dtype=object)
 
 
+def save_model(_model, _model_folder, idx):
+    #model.save(os.path.join(_model_folder, f'/model_{idx}'))
+    with open(os.path.join(_model_folder, f'modelsummary_{idx}.txt'), 'w') as f:
+        with redirect_stdout(f):
+            model.summary()
+
+
+def save_sum_up_table(_model_folder, _all_f1, _all_accuracy):
+    sum_up_table = dict()
+    sum_up_table['f1'] = np.mean(_all_f1)
+    sum_up_table['accuracy'] = np.mean(_all_accuracy)
+    sum_up_table['std_accuracy'] = np.std(_all_accuracy)
+    pd.DataFrame(sum_up_table, index=[0]).to_csv(os.path.join(_model_folder, 'sum_up_table.csv'))
+
+
 def split_samples_labels(_dataset):
     return np.array([x for x in _dataset[:, 0]]), np.array([y for y in _dataset[:, 1]])
 
@@ -156,14 +173,17 @@ if __name__ == '__main__':
     train_folds = get_folds(TRAIN_PATH)
     test_folds = get_folds(TEST_PATH)
 
-
-    model_folder_name = shortuuid.uuid()
-    os.makedirs(f'models/{}', exist_ok=True)
+    model_folder = os.path.join('models/', datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)"))
+    os.makedirs(model_folder, exist_ok=True)
     analytics_table = dict()
     for i in range(10):
+        analytics_table[str(i)] = dict()
         print(f'Iteration: {i}')
         x_train, y_train = split_samples_labels(dataset[train_folds[i].astype(np.int64)])
         x_test, y_test = split_samples_labels(dataset[test_folds[i].astype(np.int64)])
+
+        x_train = np.repeat(x_train[..., np.newaxis], 3, -1)
+        x_test = np.repeat(x_test[..., np.newaxis], 3, -1)
 
         model = Sequential()
         model.add(densenet)
@@ -182,25 +202,26 @@ if __name__ == '__main__':
             epochs=3,
             validation_split=0.1
         )
-        model.save(f'models/model_{i}')
+        save_model(model, model_folder, i)
         y_pred = model.predict(x_test)
         f1 = f1_score(y_test, y_pred)
         accuracy = accuracy_score(y_test, y_pred)
         analytics_table[str(i)]['f1'] = f1
         analytics_table[str(i)]['accuracy'] = accuracy
 
-        print(f'F1 score: {f1}')
-        print(f'Accuracy: {accuracy}')
+        # print(f'F1 score: {f1}')
+        # print(f'Accuracy: {accuracy}')
         print("-----------------\n\n")
-        break
 
-    analytics_table['std_accuracy'] = np.std([analytics_table[key]['accuracy'] for key in analytics_table])
-
+    all_accuracy = [analytics_table[key]['accuracy'] for key in analytics_table]
+    all_f1 = [analytics_table[key]['f1'] for key in analytics_table]
+    pd.DataFrame(analytics_table).to_csv(os.path.join(model_folder, 'analytics_table.csv'))
+    save_sum_up_table(model_folder, all_f1, all_accuracy)
     print('END')
 
-    #save the model
-    #create tabella analitica
-    #vari preprocessing
+    # save the model
+    # create tabella analitica
+    # vari preprocessing
 
 # drop_row, drop_column = get_drop_indexes()
 # for image in os.listdir('images'):
