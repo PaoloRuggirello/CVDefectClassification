@@ -140,7 +140,7 @@ def get_folds(path):
         fold = pd.read_csv(os.path.join(path, file_name), index_col=0, delimiter=',')
         folds.append(fold[fold.columns[0]].tolist())
         print(f'Added: {file_name}')
-    return np.array(folds)
+    return np.array(folds, dtype=object)
 
 
 if __name__ == '__main__':
@@ -149,6 +149,15 @@ if __name__ == '__main__':
     # dataset = np.load(os.path.join(DATA_PATH_PROCESSED, "processed_data.npy"), allow_pickle=True)
     train_folds = get_folds(TRAIN_PATH)
     test_folds = get_folds(TEST_PATH)
+    print('Train index')
+    for index in train_folds[0]:
+        print(index)
+    print('End train index')
+
+    print('Test index')
+    for index in test_folds[0]:
+        print(index)
+    print('End test index')
     print('END')
     # test_folds = get_folds(TEST_PATH)
 # TODO -> rename train and test folds
