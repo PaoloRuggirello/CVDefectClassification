@@ -219,8 +219,6 @@ if __name__ == '__main__':
     save_sum_up_table(model_folder, all_f1, all_accuracy)
     print('END')
 
-    # save the model
-    # create tabella analitica
     # vari preprocessing
 
 # drop_row, drop_column = get_drop_indexes()

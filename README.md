@@ -38,3 +38,8 @@ analisi concetrata sul gradiente:
 
 analisi su opening:
     sembra filtrare meglio opening con filtri circolare (11, 11)
+
+
+
+useful:
+https://h-huang.github.io/tutorials/beginner/hyperparameter_tuning_tutorial.html
