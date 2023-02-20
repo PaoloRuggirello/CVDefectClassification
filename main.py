@@ -112,16 +112,6 @@ def crop_and_save(_img, img_name, _drop_row, _drop_column):
     print("Completed " + img_name)
 
 
-def oneHotErrorRaiser(oneHotEncoding):
-    raise ValueError(f'Invalid one hot encoding: {oneHotEncoding}')
-
-
-def oneHot2Label(oneHotEncoding):
-    # 0 -> WORKING
-    # 1 -> NOT WORKING
-    return 0 if (oneHotEncoding == np.eye(2)[0]).all() else 1 if (oneHotEncoding == np.eye(2)[1]).all() else oneHotErrorRaiser(oneHotEncoding=oneHotEncoding)
-
-
 def get_sorted_dict(unsortable_names):
     sortable_dict = dict()
     for name in unsortable_names:
