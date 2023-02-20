@@ -73,12 +73,12 @@ def gradient(img):
 def obtain_working_cells(labels_info, looking_cells, allowed_images, saving_folder):
     for _, file in labels_info.iterrows():
         if file.label == looking_cells and (allowed_images is None or file.path in allowed_images):
-            #img = cv2.imread(file.path, cv2.IMREAD_GRAYSCALE)
-            #manipulated_img = standardize_image(img)
+            # img = cv2.imread(file.path, cv2.IMREAD_GRAYSCALE)
+            # manipulated_img = standardize_image(img)
             # manipulated_img = (gradient(manipulated_img) * 10).astype('float32')
             # manipulated_img = cv2.medianBlur(manipulated_img, 5)
             # manipulated_img = img - manipulated_img
-            #manipulated_img = basic_global_thresholding(manipulated_img)
+            # manipulated_img = basic_global_thresholding(manipulated_img)
             img = cv2.imread(file.path)
             kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
             manipulated_img = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
@@ -111,6 +111,7 @@ def crop_and_save(_img, img_name, _drop_row, _drop_column):
     cv2.imwrite('filtered/' + img_name, np.array(temp_img))
     print("Completed " + img_name)
 
+
 def oneHotErrorRaiser(oneHotEncoding):
     raise ValueError(f'Invalid one hot encoding: {oneHotEncoding}')
 
@@ -121,32 +122,47 @@ def oneHot2Label(oneHotEncoding):
     return 0 if (oneHotEncoding == np.eye(2)[0]).all() else 1 if (oneHotEncoding == np.eye(2)[1]).all() else oneHotErrorRaiser(oneHotEncoding=oneHotEncoding)
 
 
+def get_sorted_dict(unsortable_names):
+    sortable_dict = dict()
+    for name in unsortable_names:
+        first_part = name.split('.')[0]
+        number = first_part.split('_')[2]
+        filled = number.zfill(2)
+        sortable_dict[filled] = name
+    return [sortable_dict[key] for key in sorted(sortable_dict)]
+
+
+def get_folds(path):
+    fold_files = os.listdir(path)
+    fold_files = get_sorted_dict(fold_files)
+    folds = []
+    for file_name in fold_files:
+        fold = pd.read_csv(os.path.join(path, file_name), index_col=0, delimiter=',')
+        folds.append(fold[fold.columns[0]].tolist())
+        print(f'Added: {file_name}')
+    return np.array(folds)
+
+
 if __name__ == '__main__':
-    #preprocessing = ELImgPreprocessing()
-    #preprocessing.preprocess()
-    dataset = np.load(os.path.join(DATA_PATH_PROCESSED, "processed_data.npy"), allow_pickle=True)
-    print(len(dataset))
-    print(dataset[10])
-    print(dataset[10][0].shape)  # image
-    print(dataset[10][1])  # one-hot label
-    print(oneHot2Label(dataset[0][1]))
-    print(oneHot2Label(dataset[3][1]))
+    # preprocessing = ELImgPreprocessing()
+    # preprocessing.preprocess()
+    # dataset = np.load(os.path.join(DATA_PATH_PROCESSED, "processed_data.npy"), allow_pickle=True)
+    train_folds = get_folds(TRAIN_PATH)
+    test_folds = get_folds(TEST_PATH)
+    print('END')
+    # test_folds = get_folds(TEST_PATH)
+# TODO -> rename train and test folds
 
 
-
-
-
-
-#drop_row, drop_column = get_drop_indexes()
-    #for image in os.listdir('images'):
-    #    img = cv2.imread('images/' + image, cv2.IMREAD_GRAYSCALE)
-    #    threading.Thread(target=crop_and_save, args=(img, image, drop_row, drop_column)).start()
+# drop_row, drop_column = get_drop_indexes()
+# for image in os.listdir('images'):
+#    img = cv2.imread('images/' + image, cv2.IMREAD_GRAYSCALE)
+#    threading.Thread(target=crop_and_save, args=(img, image, drop_row, drop_column)).start()
 # get row with only 0
 # get columns with only 0
 # these are row and columns to drop
 # From real image to temp image -> take only pixels with coordinates of row - column != from column or row to drop
- #   labels_info = pd.read_csv('labels.csv', delim_whitespace=True)
- #   for label in np.array_split(labels_info, 10):
- #       threading.Thread(target=obtain_working_cells, args=(label, WORKING, IN_EXAM_W, 'w_grad/')).start()
- #       threading.Thread(target=obtain_working_cells, args=(label, NOT_WORKING, IN_EXAM_NOT_W, 'not_w_grad/')).start()
-    
+#   labels_info = pd.read_csv('labels.csv', delim_whitespace=True)
+#   for label in np.array_split(labels_info, 10):
+#       threading.Thread(target=obtain_working_cells, args=(label, WORKING, IN_EXAM_W, 'w_grad/')).start()
+#       threading.Thread(target=obtain_working_cells, args=(label, NOT_WORKING, IN_EXAM_NOT_W, 'not_w_grad/')).start()
