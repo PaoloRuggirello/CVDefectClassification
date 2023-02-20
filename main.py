@@ -3,11 +3,14 @@ import os
 import pandas as pd
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
-import threading
 from skimage.exposure import rescale_intensity
+from keras.applications import DenseNet121
+from keras.models import Sequential
+from keras import layers
 
 from data.preprocessing import ELImgPreprocessing, DATA_PATH_PROCESSED
+from sklearn.metrics import accuracy_score, f1_score
+import shortuuid
 
 # 0 -> cell works
 # 1 -> cell doesn't work
@@ -21,6 +24,13 @@ IN_EXAM_W = ['images/cell0004.png', 'images/cell0067.png', 'images/cell0106.png'
 IN_EXAM_NOT_W = ['images/cell0165.png', 'images/cell0220.png', 'images/cell0001.png', 'images/cell0002.png', 'images/cell0057.png']
 
 PREPROCESS = False
+
+densenet = DenseNet121(
+    weights=None,
+    include_top=False,
+    input_shape=(224, 224, 1)
+)
+
 
 def new_file_path(current, base_folder):
     return base_folder + current.split('/')[1]
@@ -134,8 +144,8 @@ def get_folds(path):
     return np.array(folds, dtype=object)
 
 
-def split_samples_labels(dataset):
-    return dataset[:, 0], dataset[:, 1]
+def split_samples_labels(_dataset):
+    return np.array([x for x in _dataset[:, 0]]), np.array([y for y in _dataset[:, 1]])
 
 
 if __name__ == '__main__':
@@ -146,15 +156,51 @@ if __name__ == '__main__':
     train_folds = get_folds(TRAIN_PATH)
     test_folds = get_folds(TEST_PATH)
 
+
+    model_folder_name = shortuuid.uuid()
+    os.makedirs(f'models/{}', exist_ok=True)
+    analytics_table = dict()
     for i in range(10):
         print(f'Iteration: {i}')
-        train_samples, train_labels = split_samples_labels(dataset[train_folds[i].astype(np.int64)])
-        test_samples, test_labels = split_samples_labels(dataset[test_folds[i].astype(np.int64)])
+        x_train, y_train = split_samples_labels(dataset[train_folds[i].astype(np.int64)])
+        x_test, y_test = split_samples_labels(dataset[test_folds[i].astype(np.int64)])
 
+        model = Sequential()
+        model.add(densenet)
+        model.add(layers.GlobalAveragePooling2D())
+        # model.add(layers.Dense(50, activation='relu'))
+        # model.add(layers.Dense(20, activation='relu'))
+        model.add(layers.Dense(1, activation='sigmoid'))
+        model.compile(loss='binary_crossentropy',
+                      optimizer='adam',
+                      metrics=['accuracy'])
+        model.summary()
+        model.fit(
+            x=x_train,
+            y=y_train,
+            batch_size=64,
+            epochs=3,
+            validation_split=0.1
+        )
+        model.save(f'models/model_{i}')
+        y_pred = model.predict(x_test)
+        f1 = f1_score(y_test, y_pred)
+        accuracy = accuracy_score(y_test, y_pred)
+        analytics_table[str(i)]['f1'] = f1
+        analytics_table[str(i)]['accuracy'] = accuracy
+
+        print(f'F1 score: {f1}')
+        print(f'Accuracy: {accuracy}')
         print("-----------------\n\n")
+        break
+
+    analytics_table['std_accuracy'] = np.std([analytics_table[key]['accuracy'] for key in analytics_table])
 
     print('END')
 
+    #save the model
+    #create tabella analitica
+    #vari preprocessing
 
 # drop_row, drop_column = get_drop_indexes()
 # for image in os.listdir('images'):
