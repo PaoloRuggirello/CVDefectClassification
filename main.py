@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 import threading
 from skimage.exposure import rescale_intensity
 
-from data.preprocessing import ELImgPreprocessing
+from data.preprocessing import ELImgPreprocessing, DATA_PATH_PROCESSED
 
 # 0 -> cell works
 # 1 -> cell doesn't work
@@ -111,15 +111,36 @@ def crop_and_save(_img, img_name, _drop_row, _drop_column):
     cv2.imwrite('filtered/' + img_name, np.array(temp_img))
     print("Completed " + img_name)
 
+def oneHotErrorRaiser(oneHotEncoding):
+    raise ValueError(f'Invalid one hot encoding: {oneHotEncoding}')
+
+
+def oneHot2Label(oneHotEncoding):
+    # 0 -> WORKING
+    # 1 -> NOT WORKING
+    return 0 if (oneHotEncoding == np.eye(2)[0]).all() else 1 if (oneHotEncoding == np.eye(2)[1]).all() else oneHotErrorRaiser(oneHotEncoding=oneHotEncoding)
+
 
 if __name__ == '__main__':
-    #drop_row, drop_column = get_drop_indexes()
+    #preprocessing = ELImgPreprocessing()
+    #preprocessing.preprocess()
+    dataset = np.load(os.path.join(DATA_PATH_PROCESSED, "processed_data.npy"), allow_pickle=True)
+    print(len(dataset))
+    print(dataset[10])
+    print(dataset[10][0].shape)  # image
+    print(dataset[10][1])  # one-hot label
+    print(oneHot2Label(dataset[0][1]))
+    print(oneHot2Label(dataset[3][1]))
+
+
+
+
+
+
+#drop_row, drop_column = get_drop_indexes()
     #for image in os.listdir('images'):
     #    img = cv2.imread('images/' + image, cv2.IMREAD_GRAYSCALE)
     #    threading.Thread(target=crop_and_save, args=(img, image, drop_row, drop_column)).start()
-    preprocessing = ELImgPreprocessing()
-    preprocessing.preprocess()
-
 # get row with only 0
 # get columns with only 0
 # these are row and columns to drop
