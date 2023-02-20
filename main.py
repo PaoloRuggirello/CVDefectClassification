@@ -20,6 +20,7 @@ NOT_WORKING = 1
 IN_EXAM_W = ['images/cell0004.png', 'images/cell0067.png', 'images/cell0106.png']
 IN_EXAM_NOT_W = ['images/cell0165.png', 'images/cell0220.png', 'images/cell0001.png', 'images/cell0002.png', 'images/cell0057.png']
 
+PREPROCESS = False
 
 def new_file_path(current, base_folder):
     return base_folder + current.split('/')[1]
@@ -133,25 +134,26 @@ def get_folds(path):
     return np.array(folds, dtype=object)
 
 
+def split_samples_labels(dataset):
+    return dataset[:, 0], dataset[:, 1]
+
+
 if __name__ == '__main__':
-    preprocessing = ELImgPreprocessing()
-    preprocessing.preprocess()
+    if PREPROCESS:
+        preprocessing = ELImgPreprocessing()
+        preprocessing.preprocess()
     dataset = np.load(os.path.join(DATA_PATH_PROCESSED, "processed_data.npy"), allow_pickle=True)
     train_folds = get_folds(TRAIN_PATH)
     test_folds = get_folds(TEST_PATH)
 
     for i in range(10):
         print(f'Iteration: {i}')
-        train_fold = dataset[train_folds[i].astype(np.int64)]
-        test_fold = dataset[test_folds[i].astype(np.int64)]
+        train_samples, train_labels = split_samples_labels(dataset[train_folds[i].astype(np.int64)])
+        test_samples, test_labels = split_samples_labels(dataset[test_folds[i].astype(np.int64)])
 
-        print(train_fold.size)
-        print(test_fold.size)
         print("-----------------\n\n")
 
     print('END')
-    # test_folds = get_folds(TEST_PATH)
-# TODO -> rename train and test folds
 
 
 # drop_row, drop_column = get_drop_indexes()
