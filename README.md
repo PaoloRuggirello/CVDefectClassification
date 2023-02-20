@@ -42,4 +42,4 @@ analisi su opening:
 
 
 useful:
-https://h-huang.github.io/tutorials/beginner/hyperparameter_tuning_tutorial.html
+RayTune -> https://h-huang.github.io/tutorials/beginner/hyperparameter_tuning_tutorial.html
