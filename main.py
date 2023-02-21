@@ -1,9 +1,7 @@
 import os
 
 import pandas as pd
-import cv2
 import numpy as np
-from skimage.exposure import rescale_intensity
 from keras.applications import DenseNet121
 from keras.models import Sequential
 from keras import layers
@@ -28,7 +26,7 @@ IN_EXAM_NOT_W = ['images/cell0165.png', 'images/cell0220.png', 'images/cell0001.
 PREPROCESS = False
 
 densenet = DenseNet121(
-    weights='imagenet',
+    weights='imagenet', # /kaggle/input/densenet-keras/DenseNet-BC-121-32-no-top.h5
     include_top=False,
     input_shape=(224, 224, 3)
 )
