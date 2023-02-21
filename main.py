@@ -12,6 +12,8 @@ from data.preprocessing import ELImgPreprocessing, DATA_PATH_PROCESSED
 from contextlib import redirect_stdout
 from datetime import datetime
 from sklearn.metrics import f1_score, accuracy_score
+from keras.callbacks import EarlyStopping
+
 
 # 0 -> cell works
 # 1 -> cell doesn't work
@@ -165,6 +167,33 @@ def split_samples_labels(_dataset):
     return np.array([x for x in _dataset[:, 0]]), np.array([y for y in _dataset[:, 1]])
 
 
+def get_model():
+    model = Sequential()
+    model.add(densenet)
+    # model.add(layers.GlobalAveragePooling2D())
+    # model.add(layers.Dense(50, activation='relu'))
+    # model.add(layers.Dense(20, activation='relu'))
+    model.add(layers.Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'])
+    model.summary()
+    return model
+
+
+def fit_and_save(_model, _x_train, _y_train):
+    early_stop = EarlyStopping(monitor='val_accuracy', mode='max')
+    model.fit(
+        x=x_train,
+        y=y_train,
+        batch_size=64,
+        epochs=3,
+        validation_split=0.1,
+        callbacks=[early_stop]
+    )
+    save_model(model, model_folder, i)
+
+
 if __name__ == '__main__':
     if PREPROCESS:
         preprocessing = ELImgPreprocessing()
@@ -185,33 +214,20 @@ if __name__ == '__main__':
         x_train = np.repeat(x_train[..., np.newaxis], 3, -1)
         x_test = np.repeat(x_test[..., np.newaxis], 3, -1)
 
-        model = Sequential()
-        model.add(densenet)
-        model.add(layers.GlobalAveragePooling2D())
-        # model.add(layers.Dense(50, activation='relu'))
-        # model.add(layers.Dense(20, activation='relu'))
-        model.add(layers.Dense(1, activation='sigmoid'))
-        model.compile(loss='binary_crossentropy',
-                      optimizer='adam',
-                      metrics=['accuracy'])
-        model.summary()
-        model.fit(
-            x=x_train,
-            y=y_train,
-            batch_size=64,
-            epochs=3,
-            validation_split=0.1
-        )
-        save_model(model, model_folder, i)
+        model = get_model()
+        fit_and_save(model, x_train, y_train)
+
         y_pred = model.predict(x_test)
         y_pred = y_pred > 0.5
+
         f1 = f1_score(y_test, y_pred)
         accuracy = accuracy_score(y_test, y_pred)
+
         analytics_table[str(i)]['f1'] = f1
         analytics_table[str(i)]['accuracy'] = accuracy
 
-        # print(f'F1 score: {f1}')
-        # print(f'Accuracy: {accuracy}')
+        print(f'F1 score: {f1}')
+        print(f'Accuracy: {accuracy}')
         print("-----------------\n\n")
 
     all_accuracy = [analytics_table[key]['accuracy'] for key in analytics_table]
