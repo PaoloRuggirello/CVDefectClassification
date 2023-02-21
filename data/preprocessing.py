@@ -4,6 +4,12 @@ import numpy as np
 import pandas as pd
 import os
 from tqdm import tqdm
+from skimage import exposure
+
+
+def standardize_image(image):
+    image = (image - image.min()) / (image.max() - image.min())
+    return exposure.rescale_intensity(image, (0, 1), (0, 255))
 
 DATA_PATH_PROCESSED = "processed"
 DATA_IMG_W_PROCESSED = "images/w"
@@ -31,10 +37,13 @@ class ELImgPreprocessing:
             path = os.path.join(DATA_IMAGES_PATH, image_file)  # concat the path
             img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 
-            # opening
+            # # opening
             kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
             img = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
-            # end opening
+            # # end opening
+
+            #standardize
+            img = standardize_image(img)
 
             img = cv2.resize(img, (self.IMG_SIZE, self.IMG_SIZE))  # resize the image
             processed_data.append([np.array(img), label])  # one-hot encoding W -> [1, 0] | NO_W -> [0, 1]
