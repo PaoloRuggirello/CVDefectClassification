@@ -6,7 +6,7 @@ from keras.applications import DenseNet121
 from keras.models import Sequential
 from keras import layers
 
-from data.preprocessing import ELImgPreprocessing, DATA_PATH_PROCESSED
+from data.preprocessing import ELImgPreprocessing
 from contextlib import redirect_stdout
 from datetime import datetime
 from sklearn.metrics import f1_score, accuracy_score
