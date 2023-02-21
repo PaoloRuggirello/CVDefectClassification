@@ -14,7 +14,6 @@ from datetime import datetime
 from sklearn.metrics import f1_score, accuracy_score
 from keras.callbacks import EarlyStopping
 
-
 # 0 -> cell works
 # 1 -> cell doesn't work
 
@@ -168,17 +167,17 @@ def split_samples_labels(_dataset):
 
 
 def get_model():
-    model = Sequential()
-    model.add(densenet)
-    # model.add(layers.GlobalAveragePooling2D())
-    # model.add(layers.Dense(50, activation='relu'))
-    # model.add(layers.Dense(20, activation='relu'))
-    model.add(layers.Dense(1, activation='sigmoid'))
-    model.compile(loss='binary_crossentropy',
-                  optimizer='adam',
-                  metrics=['accuracy'])
-    model.summary()
-    return model
+    new_model = Sequential()
+    new_model.add(densenet)
+    new_model.add(layers.Dense(64, activation='relu'))
+    new_model.add(layers.Dense(32, activation='relu'))
+    new_model.add(layers.Dense(16, activation='relu'))
+    new_model.add(layers.Dense(1, activation='sigmoid'))
+    new_model.compile(loss='binary_crossentropy',
+                      optimizer='adam',
+                      metrics=['accuracy'])
+    new_model.summary()
+    return new_model
 
 
 def fit_and_save(_model, _x_train, _y_train):
@@ -186,9 +185,9 @@ def fit_and_save(_model, _x_train, _y_train):
     model.fit(
         x=x_train,
         y=y_train,
-        batch_size=64,
-        epochs=3,
-        validation_split=0.1,
+        batch_size=128,
+        epochs=5,
+        validation_split=0.2,
         callbacks=[early_stop]
     )
     save_model(model, model_folder, i)

@@ -43,3 +43,7 @@ analisi su opening:
 
 useful:
 RayTune -> https://h-huang.github.io/tutorials/beginner/hyperparameter_tuning_tutorial.html
+
+
+Possible implementation:
+optimizer: adam -> https://www.tensorflow.org/api_docs/python/tf/keras/optimizers
