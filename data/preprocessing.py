@@ -5,11 +5,13 @@ import pandas as pd
 import os
 from tqdm import tqdm
 from skimage import exposure
+import seam_carving
 
 
 def standardize_image(image):
     image = (image - image.min()) / (image.max() - image.min())
     return exposure.rescale_intensity(image, (0, 1), (0, 255))
+
 
 DATA_PATH_PROCESSED = "processed"
 DATA_IMG_W_PROCESSED = "images/w"
@@ -23,6 +25,16 @@ class ELImgPreprocessing:
     working = 0  # label 0
     not_working = 0  # label 1
     IMG_SIZE = 224
+
+    def apply_seam_carving(self, _img):
+        print('Applying seam carving')
+        src_h, src_w = _img.shape
+        return seam_carving.resize(
+            _img, (src_w - 76, src_h - 76),
+            energy_mode='forward',  # Choose from {backward, forward}
+            order='width-first',  # Choose from {width-first, height-first}
+            keep_mask=None
+        )
 
     def preprocess(self):
         csv_dataframe = pd.read_csv('labels.csv', delim_whitespace=True)
@@ -42,10 +54,13 @@ class ELImgPreprocessing:
             img = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
             # # end opening
 
-            #standardize
+            # standardize
             img = standardize_image(img)
 
-            img = cv2.resize(img, (self.IMG_SIZE, self.IMG_SIZE))  # resize the image
+            # seam carving
+            img = self.apply_seam_carving(img)
+
+            # img = cv2.resize(img, (self.IMG_SIZE, self.IMG_SIZE))  # resize the image
             processed_data.append([np.array(img), label])  # one-hot encoding W -> [1, 0] | NO_W -> [0, 1]
 
             if label:
