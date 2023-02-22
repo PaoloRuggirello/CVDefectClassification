@@ -1,4 +1,8 @@
-
+import seam_carving
+import cv2
+import os
+from PIL import Image
+from skimage.exposure import rescale_intensity
 
 def new_file_path(current, base_folder):
     return base_folder + current.split('/')[1]
@@ -14,25 +18,25 @@ def gaussian_otsu_threshold(img):
 def adaptive_threshold(img):
     return cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 15, 2)
 
-
-def thres_finder(img, init_thres=60, delta_T=1.0):
-    # Let's divide the original image into two parts
-    x_low, y_low = np.where(img <= init_thres)  # Pixels values smaller than the threshold (background)
-    x_high, y_high = np.where(img > init_thres)  # Pixels values greater than the threshold (foreground)
-
-    # Find the average pixel values of the two portions
-    mean_low = np.mean(img[x_low, y_low])
-    mean_high = np.mean(img[x_high, y_high])
-
-    # Calculate the new threshold by averaging the two means
-    new_thres = (mean_low + mean_high) / 2
-
-    # Stopping criteria
-    if abs(new_thres - init_thres) < delta_T:  # If the difference between the previous and
-        # the new threshold is less than a certain value, you have found the threshold to be applied.
-        return new_thres
-    else:  # Otherwise, apply the new threshold to the original image.
-        return thres_finder(img, init_thres=new_thres, delta_T=5.0)
+#
+# def thres_finder(img, init_thres=60, delta_T=1.0):
+#     # Let's divide the original image into two parts
+#     x_low, y_low = np.where(img <= init_thres)  # Pixels values smaller than the threshold (background)
+#     x_high, y_high = np.where(img > init_thres)  # Pixels values greater than the threshold (foreground)
+#
+#     # Find the average pixel values of the two portions
+#     mean_low = np.mean(img[x_low, y_low])
+#     mean_high = np.mean(img[x_high, y_high])
+#
+#     # Calculate the new threshold by averaging the two means
+#     new_thres = (mean_low + mean_high) / 2
+#
+#     # Stopping criteria
+#     if abs(new_thres - init_thres) < delta_T:  # If the difference between the previous and
+#         # the new threshold is less than a certain value, you have found the threshold to be applied.
+#         return new_thres
+#     else:  # Otherwise, apply the new threshold to the original image.
+#         return thres_finder(img, init_thres=new_thres, delta_T=5.0)
 
 
 def basic_global_thresholding(img):
@@ -71,28 +75,27 @@ def obtain_working_cells(labels_info, looking_cells, allowed_images, saving_fold
 #         threading.Thread(target=obtain_working_cells, args=(label, WORKING, None, 'intersection/')).start()
 #         #threading.Thread(target=obtain_working_cells, args=(label, NOT_WORKING, None, 'not_w_grad/')).start()
 
-def get_drop_indexes():
-    result = cv2.imread('mask.png', cv2.IMREAD_GRAYSCALE)
-    row_index = np.where(np.bitwise_or.reduce(result, 1) == 0)
-    column_index = np.array([0, 1, 2, 3, 4, 295, 296, 297, 298, 299])
-    return row_index[0], column_index
+# def get_drop_indexes():
+#     result = cv2.imread('mask.png', cv2.IMREAD_GRAYSCALE)
+#     row_index = np.where(np.bitwise_or.reduce(result, 1) == 0)
+#     column_index = np.array([0, 1, 2, 3, 4, 295, 296, 297, 298, 299])
+#     return row_index[0], column_index
 
 
-def crop_and_save(_img, img_name, _drop_row, _drop_column):
-    temp_img = []
-    for r_idx, row in enumerate(_img):
-        if r_idx not in _drop_row:
-            temp_row = []
-            for c_idx, value in enumerate(row):
-                if c_idx not in _drop_column:
-                    temp_row.append(value)
-            temp_img.append(temp_row)
-    cv2.imwrite('filtered/' + img_name, np.array(temp_img))
-    print("Completed " + img_name)
-
-
+# def crop_and_save(_img, img_name, _drop_row, _drop_column):
+#     temp_img = []
+#     for r_idx, row in enumerate(_img):
+#         if r_idx not in _drop_row:
+#             temp_row = []
+#             for c_idx, value in enumerate(row):
+#                 if c_idx not in _drop_column:
+#                     temp_row.append(value)
+#             temp_img.append(temp_row)
+#     cv2.imwrite('filtered/' + img_name, np.array(temp_img))
+#     print("Completed " + img_name)
 
     # vari preprocessing
+
 
 # drop_row, drop_column = get_drop_indexes()
 # for image in os.listdir('images'):
@@ -106,3 +109,24 @@ def crop_and_save(_img, img_name, _drop_row, _drop_column):
 #   for label in np.array_split(labels_info, 10):
 #       threading.Thread(target=obtain_working_cells, args=(label, WORKING, IN_EXAM_W, 'w_grad/')).start()
 #       threading.Thread(target=obtain_working_cells, args=(label, NOT_WORKING, IN_EXAM_NOT_W, 'not_w_grad/')).start()
+
+def apply_seam_carving(_img):
+    src_h, src_w = _img.shape
+    return seam_carving.resize(
+        _img, (src_w - 76, src_h - 76),
+        energy_mode='forward',  # Choose from {backward, forward}
+        order='width-first',  # Choose from {width-first, height-first}
+        keep_mask=None
+    )
+
+
+if __name__ == '__main__':
+    # for image in os.listdir('data/images'):
+    image = 'cell0001.png'
+
+    print(f'File: {image}')
+    img = cv2.imread('data/images/' + image, cv2.IMREAD_GRAYSCALE)
+    img = standardize_image(img)
+    Image.fromarray(img).show()
+    Image.fromarray(apply_seam_carving(img)).show()
+    # break
