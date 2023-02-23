@@ -6,6 +6,8 @@ import os
 from tqdm import tqdm
 from skimage import exposure
 import seam_carving
+from skimage.feature import local_binary_pattern
+from PIL import Image
 
 
 def standardize_image(image):
@@ -36,9 +38,18 @@ class ELImgPreprocessing:
             keep_mask=None
         )
 
+    def apply_sobel(self, _img):
+        sobel_x = cv2.Sobel(_img, cv2.CV_64F, 1, 0, ksize=5)  # x
+        sobel_y = cv2.Sobel(_img, cv2.CV_64F, 0, 1, ksize=5)  # y
+        gradient_magnitude = np.sqrt(np.square(sobel_x) + np.square(sobel_y))
+        gradient_magnitude *= 255.0 / gradient_magnitude.max()
+        return gradient_magnitude
+
+
     def preprocess(self):
         csv_dataframe = pd.read_csv('labels.csv', delim_whitespace=True)
         processed_data = []
+        processed_data_lbp = []
         os.makedirs(DATA_PATH_PROCESSED, exist_ok=True)
         if SAVE_IMGS:
             os.makedirs(DATA_IMG_W_PROCESSED, exist_ok=True)
@@ -50,19 +61,22 @@ class ELImgPreprocessing:
             img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 
             # # opening
-            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
-            img = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
+            # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
+            # img = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
             # # end opening
 
             # standardize
-            img = standardize_image(img)
+            # img = standardize_image(img)
 
             # seam carving
-            img = self.apply_seam_carving(img)
+            # img = self.apply_seam_carving(img)
 
-            # img = cv2.resize(img, (self.IMG_SIZE, self.IMG_SIZE))  # resize the image
-            processed_data.append([np.array(img), label])  # one-hot encoding W -> [1, 0] | NO_W -> [0, 1]
+            img = cv2.resize(img, (self.IMG_SIZE, self.IMG_SIZE))  # resize the image
+            lbp_img = local_binary_pattern(img, 8, 1).astype('uint8')
+            sobel = self.apply_sobel(img).astype('float16')
 
+            processed_data.append([np.array([img, lbp_img, sobel]).transpose(1, 2, 0), label])
+            processed_data_lbp.append(lbp_img)
             if label:
                 self.not_working += 1
             else:

@@ -101,6 +101,7 @@ def fit_and_save(_model, _x_train, _y_train):
 
 
 if __name__ == '__main__':
+    DATA_PATH_PROCESSED = 'data/processed/'
     if PREPROCESS:
         preprocessing = ELImgPreprocessing()
         preprocessing.preprocess()

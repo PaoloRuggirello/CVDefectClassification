@@ -1,8 +1,11 @@
+import numpy as np
 import seam_carving
 import cv2
 import os
 from PIL import Image
 from skimage.exposure import rescale_intensity
+from skimage.feature import local_binary_pattern
+import Augmentor
 
 def new_file_path(current, base_folder):
     return base_folder + current.split('/')[1]
@@ -123,10 +126,27 @@ def apply_seam_carving(_img):
 if __name__ == '__main__':
     # for image in os.listdir('data/images'):
     image = 'cell0001.png'
+    image1 = 'cell1922.png'
+    image2 = 'cell0266.png'
+    image3 = 'cell0079.png'
 
     print(f'File: {image}')
     img = cv2.imread('data/images/' + image, cv2.IMREAD_GRAYSCALE)
-    img = standardize_image(img)
-    Image.fromarray(img).show()
-    Image.fromarray(apply_seam_carving(img)).show()
+    img1 = cv2.imread('data/images/' + image1, cv2.IMREAD_GRAYSCALE)
+    img2 = cv2.imread('data/images/' + image2, cv2.IMREAD_GRAYSCALE)
+    img3 = cv2.imread('data/images/' + image3, cv2.IMREAD_GRAYSCALE)
+    imgs = np.array([img, img1, img2, img3])
+
+
+    for i in range(len(imgs)):
+        img = standardize_image(imgs[i])
+        input("Press enter for next image")
+        Image.fromarray(img).show()
+        sobel_x = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=5)  # x
+        sobel_y = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=5)  # y
+        gradient_magnitude = np.sqrt(np.square(sobel_x) + np.square(sobel_y))
+        gradient_magnitude *= 255.0 / gradient_magnitude.max()
+        Image.fromarray(sobel_x).show()
+        Image.fromarray(sobel_y).show()
+        Image.fromarray(gradient_magnitude).show()
     # break
