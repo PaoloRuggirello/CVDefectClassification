@@ -9,14 +9,12 @@ from keras import layers
 from data.preprocessing import ELImgPreprocessing
 from contextlib import redirect_stdout
 from datetime import datetime
-from sklearn.metrics import f1_score, accuracy_score
 from keras.callbacks import EarlyStopping
+from common_utils import *
 
 # 0 -> cell works
 # 1 -> cell doesn't work
 
-TEST_PATH = 'bootstrap_folds/test_folds/'
-TRAIN_PATH = 'bootstrap_folds/train_folds/'
 WORKING = 0
 NOT_WORKING = 1
 
@@ -26,32 +24,11 @@ IN_EXAM_NOT_W = ['images/cell0165.png', 'images/cell0220.png', 'images/cell0001.
 PREPROCESS = False
 
 densenet = DenseNet121(
-    weights='imagenet', # /kaggle/input/densenet-keras/DenseNet-BC-121-32-no-top.h5
+    weights='imagenet',  # /kaggle/input/densenet-keras/DenseNet-BC-121-32-no-top.h5
     include_top=False,
     input_shape=(224, 224, 3)
 )
 densenet.trainable = False
-
-
-def get_sorted_dict(unsortable_names):
-    sortable_dict = dict()
-    for name in unsortable_names:
-        first_part = name.split('.')[0]
-        number = first_part.split('_')[2]
-        filled = number.zfill(2)
-        sortable_dict[filled] = name
-    return [sortable_dict[key] for key in sorted(sortable_dict)]
-
-
-def get_folds(path):
-    fold_files = os.listdir(path)
-    fold_files = get_sorted_dict(fold_files)
-    folds = []
-    for file_name in fold_files:
-        fold = pd.read_csv(os.path.join(path, file_name), index_col=0, delimiter=',')
-        folds.append(np.array(fold[fold.columns[0]].tolist()))
-        print(f'Read: {file_name}')
-    return np.array(folds, dtype=object)
 
 
 def save_model(_model, _model_folder, idx):
@@ -59,18 +36,6 @@ def save_model(_model, _model_folder, idx):
     with open(os.path.join(_model_folder, f'modelsummary_{idx}.txt'), 'w') as f:
         with redirect_stdout(f):
             model.summary()
-
-
-def save_sum_up_table(_model_folder, _all_f1, _all_accuracy):
-    sum_up_table = dict()
-    sum_up_table['f1'] = np.mean(_all_f1)
-    sum_up_table['accuracy'] = np.mean(_all_accuracy)
-    sum_up_table['std_accuracy'] = np.std(_all_accuracy)
-    pd.DataFrame(sum_up_table, index=[0]).to_csv(os.path.join(_model_folder, 'sum_up_table.csv'))
-
-
-def split_samples_labels(_dataset):
-    return np.array([x for x in _dataset[:, 0]]), np.array([y for y in _dataset[:, 1]])
 
 
 def get_model():
@@ -101,7 +66,6 @@ def fit_and_save(_model, _x_train, _y_train):
 
 
 if __name__ == '__main__':
-    DATA_PATH_PROCESSED = 'data/processed/'
     if PREPROCESS:
         preprocessing = ELImgPreprocessing()
         preprocessing.preprocess()
@@ -140,5 +104,7 @@ if __name__ == '__main__':
     all_accuracy = [analytics_table[key]['accuracy'] for key in analytics_table]
     all_f1 = [analytics_table[key]['f1'] for key in analytics_table]
     pd.DataFrame(analytics_table).to_csv(os.path.join(model_folder, 'analytics_table.csv'))
-    save_sum_up_table(model_folder, all_f1, all_accuracy)
+    sum_up_table = calculate_sum_up_table(analytics_table)
+    pd.DataFrame(sum_up_table, index=[0]).to_csv(os.path.join(model_folder, 'sum_up_table.csv'))
+
     print('END')

@@ -62,15 +62,18 @@ class ELImgPreprocessing:
             path = os.path.join(DATA_IMAGES_PATH, image_file)  # concat the path
             img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 
+            # seam carving
+            img = self.apply_seam_carving(img)
+
             #sobel
-            sobel = self.apply_sobel(img)
+            img = self.apply_sobel(img)
 
             #sum + sobel + image
-            img = img + sobel
-            img[np.where(img > 255)] = 255
+            # img = img + sobel
+            # img[np.where(img > 255)] = 255
 
             #opening
-            img = self.apply_opening(img)
+            #img = self.apply_opening(img)
 
             # # opening
             # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
@@ -80,8 +83,7 @@ class ELImgPreprocessing:
             # standardize
             # img = standardize_image(img)
 
-            # seam carving
-            img = self.apply_seam_carving(img)
+
 
             # img = cv2.resize(img, (self.IMG_SIZE, self.IMG_SIZE))  # resize the image
             # lbp_img = local_binary_pattern(img, 8, 1).astype('uint8')
