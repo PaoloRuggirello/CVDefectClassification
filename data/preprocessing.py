@@ -29,7 +29,6 @@ class ELImgPreprocessing:
     IMG_SIZE = 224
 
     def apply_seam_carving(self, _img):
-        print('Applying seam carving')
         src_h, src_w = _img.shape
         return seam_carving.resize(
             _img, (src_w - 76, src_h - 76),
@@ -45,6 +44,9 @@ class ELImgPreprocessing:
         gradient_magnitude *= 255.0 / gradient_magnitude.max()
         return gradient_magnitude
 
+    def apply_opening(self, _img):
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9))
+        return cv2.morphologyEx(_img, cv2.MORPH_OPEN, kernel)
 
     def preprocess(self):
         csv_dataframe = pd.read_csv('labels.csv', delim_whitespace=True)
@@ -60,6 +62,16 @@ class ELImgPreprocessing:
             path = os.path.join(DATA_IMAGES_PATH, image_file)  # concat the path
             img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 
+            #sobel
+            sobel = self.apply_sobel(img)
+
+            #sum + sobel + image
+            img = img + sobel
+            img[np.where(img > 255)] = 255
+
+            #opening
+            img = self.apply_opening(img)
+
             # # opening
             # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
             # img = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
@@ -69,14 +81,16 @@ class ELImgPreprocessing:
             # img = standardize_image(img)
 
             # seam carving
-            # img = self.apply_seam_carving(img)
+            img = self.apply_seam_carving(img)
 
-            img = cv2.resize(img, (self.IMG_SIZE, self.IMG_SIZE))  # resize the image
-            lbp_img = local_binary_pattern(img, 8, 1).astype('uint8')
-            sobel = self.apply_sobel(img).astype('float16')
+            # img = cv2.resize(img, (self.IMG_SIZE, self.IMG_SIZE))  # resize the image
+            # lbp_img = local_binary_pattern(img, 8, 1).astype('uint8')
+            # sobel = self.apply_sobel(img).astype('float16')
 
-            processed_data.append([np.array([img, lbp_img, sobel]).transpose(1, 2, 0), label])
-            processed_data_lbp.append(lbp_img)
+            # processed_data.append([np.array([img, lbp_img, sobel]).transpose(1, 2, 0), label])
+            img = img.astype('uint8')
+            processed_data.append([np.array(img), label])
+
             if label:
                 self.not_working += 1
             else:

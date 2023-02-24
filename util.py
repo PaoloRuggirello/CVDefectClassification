@@ -6,6 +6,8 @@ from PIL import Image
 from skimage.exposure import rescale_intensity
 from skimage.feature import local_binary_pattern
 import Augmentor
+from keras import backend as K
+
 
 def new_file_path(current, base_folder):
     return base_folder + current.split('/')[1]
@@ -20,6 +22,7 @@ def gaussian_otsu_threshold(img):
 
 def adaptive_threshold(img):
     return cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 15, 2)
+
 
 #
 # def thres_finder(img, init_thres=60, delta_T=1.0):
@@ -97,7 +100,7 @@ def obtain_working_cells(labels_info, looking_cells, allowed_images, saving_fold
 #     cv2.imwrite('filtered/' + img_name, np.array(temp_img))
 #     print("Completed " + img_name)
 
-    # vari preprocessing
+# vari preprocessing
 
 
 # drop_row, drop_column = get_drop_indexes()
@@ -123,30 +126,65 @@ def apply_seam_carving(_img):
     )
 
 
+def apply_sobel(_img):
+    sobel_x = cv2.Sobel(_img, cv2.CV_64F, 1, 0, ksize=5)  # x
+    sobel_y = cv2.Sobel(_img, cv2.CV_64F, 0, 1, ksize=5)  # y
+    gradient_magnitude = np.sqrt(np.square(sobel_x) + np.square(sobel_y))
+    gradient_magnitude *= 255.0 / gradient_magnitude.max()
+    return gradient_magnitude
+
+
+def apply_opening(_img):
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9))
+    return cv2.morphologyEx(_img, cv2.MORPH_OPEN, kernel)
+
+
+def recall_m(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+    recall = true_positives / (possible_positives + K.epsilon())
+    return recall
+
+
+def precision_m(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+    precision = true_positives / (predicted_positives + K.epsilon())
+    return precision
+
+
+def f1_m(y_true, y_pred):
+    precision = precision_m(y_true, y_pred)
+    recall = recall_m(y_true, y_pred)
+    return 2 * ((precision * recall) / (precision + recall + K.epsilon()))
+
+
 if __name__ == '__main__':
     # for image in os.listdir('data/images'):
-    image = 'cell0001.png'
-    image1 = 'cell1922.png'
-    image2 = 'cell0266.png'
-    image3 = 'cell0079.png'
 
-    print(f'File: {image}')
-    img = cv2.imread('data/images/' + image, cv2.IMREAD_GRAYSCALE)
-    img1 = cv2.imread('data/images/' + image1, cv2.IMREAD_GRAYSCALE)
-    img2 = cv2.imread('data/images/' + image2, cv2.IMREAD_GRAYSCALE)
-    img3 = cv2.imread('data/images/' + image3, cv2.IMREAD_GRAYSCALE)
-    imgs = np.array([img, img1, img2, img3])
-
-
-    for i in range(len(imgs)):
-        img = standardize_image(imgs[i])
-        input("Press enter for next image")
-        Image.fromarray(img).show()
-        sobel_x = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=5)  # x
-        sobel_y = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=5)  # y
-        gradient_magnitude = np.sqrt(np.square(sobel_x) + np.square(sobel_y))
-        gradient_magnitude *= 255.0 / gradient_magnitude.max()
-        Image.fromarray(sobel_x).show()
-        Image.fromarray(sobel_y).show()
-        Image.fromarray(gradient_magnitude).show()
-    # break
+    f1_m(1, 0.6)
+    # image = 'cell0001.png'
+    # image1 = 'cell1922.png'
+    # image2 = 'cell0266.png'
+    # image3 = 'cell0079.png'
+    #
+    # print(f'File: {image}')
+    # img = cv2.imread('data/images/' + image, cv2.IMREAD_GRAYSCALE)
+    # img1 = cv2.imread('data/images/' + image1, cv2.IMREAD_GRAYSCALE)
+    # img2 = cv2.imread('data/images/' + image2, cv2.IMREAD_GRAYSCALE)
+    # img3 = cv2.imread('data/images/' + image3, cv2.IMREAD_GRAYSCALE)
+    # imgs = np.array([img, img1, img2, img3])
+    #
+    # for i in range(len(imgs)):
+    #     img = standardize_image(imgs[i])
+    #     input("Press enter for next image")
+    #     Image.fromarray(img).show()
+    #     sobel = apply_sobel(img)
+    #     opened = apply_opening(img + sobel)
+    #     opened[np.where(opened > 255)] = 255
+    #     # Image.fromarray(sobel).show()
+    #     # Image.fromarray(img - sobel).show(title='Sub')
+    #     Image.fromarray(opened).show(title='Add')
+    #     Image.fromarray(apply_sobel(opened)).show()
+    #
+    #     # break
