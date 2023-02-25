@@ -11,6 +11,7 @@ def load_keras_model(model_idx):
     model_name = BASE_MODEL_NAME + str(i)
     _model = load_model(os.path.join(BASE_PATH, model_name), custom_objects={'f1_m': f1_m})
     print('Model loaded')
+    _model.summary()
     return _model
 
 
@@ -28,8 +29,10 @@ if __name__ == '__main__':
     for i in range(10):
         analytics_table[str(i)] = dict()
         print(f'Iteration {i}')
+        x_test, y_test = split_samples_labels(dataset[test_folds[i].astype('uint32')])
+
         model = load_keras_model(i)
-        x_test, y_test = split_samples_labels(dataset[test_folds[i].astype('uint8')])
+
 
         x_test = x_test / 255
         x_test = np.repeat(x_test[..., np.newaxis], 3, -1)
