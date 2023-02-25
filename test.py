@@ -33,7 +33,6 @@ if __name__ == '__main__':
 
         model = load_keras_model(i)
 
-
         x_test = x_test / 255
         x_test = np.repeat(x_test[..., np.newaxis], 3, -1)
 
