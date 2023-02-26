@@ -16,7 +16,7 @@ def load_dataset():
     return np.load(os.path.join(DATA_PATH_PROCESSED, "processed_data.npy"), allow_pickle=True)
 
 
-def get_net():
+def get_net():  # Get pretrained on imagenet Densenet169
     net = DenseNet169(
         include_top=False,
         input_shape=(224, 224, 3)
@@ -25,7 +25,7 @@ def get_net():
     return net
 
 
-def get_sorted_dict(unsortable_names):
+def get_sorted_file_names(unsortable_names):  # Obtaining sorted list of files in order to properly load folds info
     sortable_dict = dict()
     for name in unsortable_names:
         first_part = name.split('.')[0]
@@ -35,14 +35,14 @@ def get_sorted_dict(unsortable_names):
     return [sortable_dict[key] for key in sorted(sortable_dict)]
 
 
-def get_folds(path):
+def get_folds(path):  # Obtaining 10 elements array where each entry contains the i-th fold indexes
     print('Reading folds indexes')
     fold_files = os.listdir(path)
-    fold_files = get_sorted_dict(fold_files)
+    fold_files = get_sorted_file_names(fold_files)
     folds = []
     for file_name in fold_files:
         print(f'Loading fold: {file_name}')
-        fold = pd.read_csv(os.path.join(path, file_name), index_col=0, delimiter=',')
+        fold = pd.read_csv(os.path.join(path, file_name), index_col=0, delimiter=',')  # Obtaining fold indexes
         folds.append(np.array(fold[fold.columns[0]].tolist()))
     return np.array(folds, dtype=object)
 
