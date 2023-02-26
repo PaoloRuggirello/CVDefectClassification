@@ -1,4 +1,4 @@
-from data.preprocessing import ELImgPreprocessing
+from sklearn.metrics import confusion_matrix
 from contextlib import redirect_stdout
 from datetime import datetime
 from keras.callbacks import EarlyStopping
@@ -50,31 +50,37 @@ def fit_and_save(_model, _x_train, _y_train):
 
 
 if __name__ == '__main__':
-    if PREPROCESS:
-        preprocessing = ELImgPreprocessing()
-        preprocessing.preprocess()
-    dataset = np.load(os.path.join(DATA_PATH_PROCESSED, "processed_data.npy"), allow_pickle=True)
-    train_folds = get_folds(TRAIN_PATH)
-    test_folds = get_folds(TEST_PATH)
+    dataset = np.load('/kaggle/input/gaussian-set/processed_data.npy', allow_pickle=True)
+    train_folds = get_folds('/kaggle/input/train-fold')
+    test_folds = get_folds('/kaggle/input/test-fold')
 
-    model_folder = os.path.join('models/', datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)"))
+    model_folder = os.path.join('/kaggle/working/', datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)"))
     os.makedirs(model_folder, exist_ok=True)
     analytics_table = dict()
+
     for i in range(10):
-        analytics_table[str(i)] = dict()
         print(f'Iteration: {i}')
+        analytics_table[str(i)] = dict()
         x_train, y_train = split_samples_labels(dataset[train_folds[i].astype(np.int64)])
         x_test, y_test = split_samples_labels(dataset[test_folds[i].astype(np.int64)])
+
+        print(f'train: {x_train.shape}')
+        print(f'test: {x_test.shape}')
+
+        x_train = dataset_augmentation(x_train)
+
+        x_train = x_train / 255
+        x_test = x_test / 255
 
         x_train = np.repeat(x_train[..., np.newaxis], 3, -1)
         x_test = np.repeat(x_test[..., np.newaxis], 3, -1)
 
-        model = get_model()
-        fit_and_save(model, x_train, y_train)
+        model = fit_and_save(get_model(), x_train, y_train)
 
         y_pred = model.predict(x_test)
         y_pred = y_pred > 0.5
 
+        print(confusion_matrix(y_test, y_pred))
         f1 = f1_score(y_test, y_pred)
         accuracy = accuracy_score(y_test, y_pred)
 
@@ -85,10 +91,6 @@ if __name__ == '__main__':
         print(f'Accuracy: {accuracy}')
         print("-----------------\n\n")
 
-    all_accuracy = [analytics_table[key]['accuracy'] for key in analytics_table]
-    all_f1 = [analytics_table[key]['f1'] for key in analytics_table]
     pd.DataFrame(analytics_table).to_csv(os.path.join(model_folder, 'analytics_table.csv'))
-    sum_up_table = calculate_sum_up_table(analytics_table)
-    pd.DataFrame(sum_up_table, index=[0]).to_csv(os.path.join(model_folder, 'sum_up_table.csv'))
-
+    pd.DataFrame(calculate_sum_up_table(analytics_table)).to_csv(os.path.join(model_folder, 'sum_up_table.csv'))
     print('END')
