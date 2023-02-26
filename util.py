@@ -162,27 +162,26 @@ def f1_m(y_true, y_pred):
 if __name__ == '__main__':
     # for image in os.listdir('data/images'):
 
-    f1_m(1, 0.6)
-    # image = 'cell0001.png'
-    # image1 = 'cell1922.png'
-    # image2 = 'cell0266.png'
-    # image3 = 'cell0079.png'
+    image = 'cell0001.png'
+    image1 = 'cell1922.png'
+    image2 = 'cell0266.png'
+    image3 = 'cell0079.png'
     #
-    # print(f'File: {image}')
-    # img = cv2.imread('data/images/' + image, cv2.IMREAD_GRAYSCALE)
-    # img1 = cv2.imread('data/images/' + image1, cv2.IMREAD_GRAYSCALE)
-    # img2 = cv2.imread('data/images/' + image2, cv2.IMREAD_GRAYSCALE)
-    # img3 = cv2.imread('data/images/' + image3, cv2.IMREAD_GRAYSCALE)
-    # imgs = np.array([img, img1, img2, img3])
+    print(f'File: {image}')
+    img = cv2.imread('data/images/' + image, cv2.IMREAD_GRAYSCALE)
+    img1 = cv2.imread('data/images/' + image1, cv2.IMREAD_GRAYSCALE)
+    img2 = cv2.imread('data/images/' + image2, cv2.IMREAD_GRAYSCALE)
+    img3 = cv2.imread('data/images/' + image3, cv2.IMREAD_GRAYSCALE)
+    imgs = np.array([img, img1, img2, img3])
     #
-    # for i in range(len(imgs)):
+    for i in range(len(imgs)):
     #     img = standardize_image(imgs[i])
     #     input("Press enter for next image")
-    #     Image.fromarray(img).show()
-    #     sobel = apply_sobel(img)
+        Image.fromarray(img).show()
+        sobel = apply_sobel(img)
     #     opened = apply_opening(img + sobel)
     #     opened[np.where(opened > 255)] = 255
-    #     # Image.fromarray(sobel).show()
+        Image.fromarray(sobel).show()
     #     # Image.fromarray(img - sobel).show(title='Sub')
     #     Image.fromarray(opened).show(title='Add')
     #     Image.fromarray(apply_sobel(opened)).show()
