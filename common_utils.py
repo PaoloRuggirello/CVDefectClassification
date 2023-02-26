@@ -13,7 +13,6 @@ DATA_PATH_PROCESSED = 'data/processed/'
 
 def get_net():
     net = DenseNet169(
-        # weights='/kaggle/input/densenet-keras/DenseNet-BC-169-32-no-top.h5',
         include_top=False,
         input_shape=(224, 224, 3)
     )

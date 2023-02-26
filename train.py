@@ -81,8 +81,8 @@ if __name__ == '__main__':
         y_pred = y_pred > 0.5
 
         print(confusion_matrix(y_test, y_pred))
-        f1 = f1_score(y_test, y_pred)
-        accuracy = accuracy_score(y_test, y_pred)
+        f1 = calculate_f1(y_test, y_pred)
+        accuracy = calculate_accuracy(y_test, y_pred)
 
         analytics_table[str(i)]['f1'] = f1
         analytics_table[str(i)]['accuracy'] = accuracy
