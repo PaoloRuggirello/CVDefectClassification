@@ -50,7 +50,7 @@ def fit_and_save(_model, _x_train, _y_train):
 
 
 if __name__ == '__main__':
-    dataset = np.load(os.path.join(DATA_PATH_PROCESSED, 'processed_data.npy'), allow_pickle=True)
+    dataset = load_dataset()
     train_folds = get_folds(TRAIN_PATH)  # Array containing 10-folds train info
     test_folds = get_folds(TEST_PATH)  # Array containing 10-folds test info
 
@@ -78,7 +78,7 @@ if __name__ == '__main__':
         model = fit_and_save(get_model(), x_train, y_train)
 
         y_pred = model.predict(x_test)
-        y_pred = y_pred > 0.5  # Changing from Sigmoid value to binary value
+        y_pred = y_pred > 0.5  # Changing from Sigmoid values to binary values
 
         print(confusion_matrix(y_test, y_pred))
         f1 = calculate_f1(y_test, y_pred)

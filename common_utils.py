@@ -11,6 +11,11 @@ TRAIN_PATH = 'bootstrap_folds/train_folds/'
 DATA_PATH_PROCESSED = 'data/processed/'
 
 
+def load_dataset():
+    print('Loading dataset')
+    return np.load(os.path.join(DATA_PATH_PROCESSED, "processed_data.npy"), allow_pickle=True)
+
+
 def get_net():
     net = DenseNet169(
         include_top=False,

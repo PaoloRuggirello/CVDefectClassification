@@ -8,11 +8,6 @@ OUTPUT_FOLDER = 'best_model_metrics'
 WEIGHTS_FOLDER = 'best_model_weights'
 
 
-def load_dataset():
-    print('Loading dataset')
-    return np.load(os.path.join(DATA_PATH_PROCESSED, "processed_data.npy"), allow_pickle=True)
-
-
 def load_model(model_idx):
     print(f'Loading model {model_idx}')
     _model = get_model()
@@ -24,7 +19,7 @@ def load_model(model_idx):
 if __name__ == '__main__':
     print('Started test')
     dataset = load_dataset()
-    test_folds = get_folds(TEST_PATH)
+    test_folds = get_folds(TEST_PATH)  # Array containing 10-folds test info
     analytics_table = dict()
 
     for i in range(10):
@@ -34,11 +29,11 @@ if __name__ == '__main__':
 
         x_test, y_test = split_samples_labels(dataset[test_folds[i].astype('uint32')])
 
-        x_test = x_test / 255
-        x_test = np.repeat(x_test[..., np.newaxis], 3, -1)
+        x_test = x_test / 255 # Data standardization
+        x_test = np.repeat(x_test[..., np.newaxis], 3, -1)  # Creating 3-channel images from grayscale images
 
         y_pred = model.predict(x_test)
-        y_pred = y_pred > 0.5
+        y_pred = y_pred > 0.5  # Changing from Sigmoid values to binary values
 
         analytics_table[str(i)]['f1'] = calculate_f1(y_test, y_pred)
         analytics_table[str(i)]['accuracy'] = calculate_accuracy(y_test, y_pred)
