@@ -2,7 +2,6 @@ import os
 import pandas as pd
 import numpy as np
 from sklearn.metrics import f1_score, accuracy_score
-import keras.backend as K
 from keras.models import Sequential
 from keras.applications import DenseNet169
 from keras import layers
@@ -69,26 +68,6 @@ def calculate_sum_up_table(analytics_table):
     sum_up_table['accuracy'] = np.round(np.mean(all_accuracy), 2)
     sum_up_table['std_accuracy'] = np.round(np.std(all_accuracy), 2)
     return sum_up_table
-
-
-def recall_m(y_true, y_pred):
-    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
-    recall = true_positives / (possible_positives + K.epsilon())
-    return recall
-
-
-def precision_m(y_true, y_pred):
-    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
-    precision = true_positives / (predicted_positives + K.epsilon())
-    return precision
-
-
-def f1_m(y_true, y_pred):
-    precision = precision_m(y_true, y_pred)
-    recall = recall_m(y_true, y_pred)
-    return 2 * ((precision * recall) / (precision + recall + K.epsilon()))
 
 
 def get_model():

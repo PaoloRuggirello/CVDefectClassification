@@ -50,9 +50,9 @@ def fit_and_save(_model, _x_train, _y_train):
 
 
 if __name__ == '__main__':
-    dataset = np.load('/kaggle/input/gaussian-set/processed_data.npy', allow_pickle=True)
-    train_folds = get_folds('/kaggle/input/train-fold')
-    test_folds = get_folds('/kaggle/input/test-fold')
+    dataset = np.load(os.path.join(DATA_PATH_PROCESSED, 'processed_data.npy'), allow_pickle=True)
+    train_folds = get_folds(TRAIN_PATH)
+    test_folds = get_folds(TEST_PATH)
 
     model_folder = os.path.join('/kaggle/working/', datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)"))
     os.makedirs(model_folder, exist_ok=True)
