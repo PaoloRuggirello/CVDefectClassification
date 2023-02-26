@@ -12,12 +12,14 @@ def load_dataset():
     print('Loading dataset')
     return np.load(os.path.join(DATA_PATH_PROCESSED, "processed_data.npy"), allow_pickle=True)
 
+
 def load_model(model_idx):
-    print(f'Loading model {i}')
-    model = get_model()
-    model.load_weights(os.path.join(WEIGHTS_FOLDER, f"model_{i}.h5"))
+    print(f'Loading model {model_idx}')
+    _model = get_model()
+    _model.load_weights(os.path.join(WEIGHTS_FOLDER, f"model_{model_idx}.h5"))
     print('Model loaded')
-    return model
+    return _model
+
 
 if __name__ == '__main__':
     print('Started test')
