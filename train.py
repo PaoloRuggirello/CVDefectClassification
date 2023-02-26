@@ -54,7 +54,7 @@ if __name__ == '__main__':
     train_folds = get_folds(TRAIN_PATH)
     test_folds = get_folds(TEST_PATH)
 
-    model_folder = os.path.join('/kaggle/working/', datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)"))
+    model_folder = os.path.join('models', datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)"))
     os.makedirs(model_folder, exist_ok=True)
     analytics_table = dict()
 
