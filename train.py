@@ -9,17 +9,17 @@ WORKING = 0
 NOT_WORKING = 1
 
 
-def data_augmentation(sample):
-    prob_ud = rnd.random()
+def data_augmentation(sample):  # Method that augment data variability
+    prob_ud = rnd.random()  # Extracting numbers between 0 and 1 to decide if perform transformation
     prob_lr = rnd.random()
     if prob_ud >= 0.5:
-        sample = np.flipud(sample)
+        sample = np.flipud(sample)  # Flip image vertically
     if prob_lr >= 0.5:
-        sample = np.fliplr(sample)
+        sample = np.fliplr(sample)  # Flip image horizontally
     return sample
 
 
-def dataset_augmentation(_dataset):
+def dataset_augmentation(_dataset):  # Applying augmentation to entire dataset
     print("Augmenting dataset")
     new_dataset = []
     for sample in _dataset:
@@ -27,7 +27,7 @@ def dataset_augmentation(_dataset):
     return np.array(new_dataset)
 
 
-def save_model(_model, _model_folder, idx):
+def save_model(_model, _model_folder, idx):  # Saving model weights and model summary
     _model.save_weights(os.path.join(_model_folder, f'model_{idx}.h5'))
     with open(os.path.join(_model_folder, f'modelsummary_{idx}.txt'), 'w') as f:
         with redirect_stdout(f):
@@ -51,10 +51,10 @@ def fit_and_save(_model, _x_train, _y_train):
 
 if __name__ == '__main__':
     dataset = np.load(os.path.join(DATA_PATH_PROCESSED, 'processed_data.npy'), allow_pickle=True)
-    train_folds = get_folds(TRAIN_PATH)
-    test_folds = get_folds(TEST_PATH)
+    train_folds = get_folds(TRAIN_PATH)  # Array containing 10-folds train info
+    test_folds = get_folds(TEST_PATH)  # Array containing 10-folds test info
 
-    model_folder = os.path.join('models', datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)"))
+    model_folder = os.path.join('models', datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)"))  # Creating new folder to store the new model
     os.makedirs(model_folder, exist_ok=True)
     analytics_table = dict()
 
@@ -69,16 +69,16 @@ if __name__ == '__main__':
 
         x_train = dataset_augmentation(x_train)
 
-        x_train = x_train / 255
-        x_test = x_test / 255
+        x_train = x_train / 255  # Data standardization
+        x_test = x_test / 255  # Data standardization
 
-        x_train = np.repeat(x_train[..., np.newaxis], 3, -1)
-        x_test = np.repeat(x_test[..., np.newaxis], 3, -1)
+        x_train = np.repeat(x_train[..., np.newaxis], 3, -1)  # Creating 3-channel images from grayscale images
+        x_test = np.repeat(x_test[..., np.newaxis], 3, -1)  # Creating 3-channel images from grayscale images
 
         model = fit_and_save(get_model(), x_train, y_train)
 
         y_pred = model.predict(x_test)
-        y_pred = y_pred > 0.5
+        y_pred = y_pred > 0.5  # Changing from Sigmoid value to binary value
 
         print(confusion_matrix(y_test, y_pred))
         f1 = calculate_f1(y_test, y_pred)
