@@ -3,10 +3,23 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import f1_score, accuracy_score
 import keras.backend as K
+from keras.models import Sequential
+from keras.applications import DenseNet169
+from keras import layers
 
 TEST_PATH = 'bootstrap_folds/test_folds/'
 TRAIN_PATH = 'bootstrap_folds/train_folds/'
 DATA_PATH_PROCESSED = 'data/processed/'
+
+
+def get_net():
+    net = DenseNet169(
+        # weights='/kaggle/input/densenet-keras/DenseNet-BC-169-32-no-top.h5',
+        include_top=False,
+        input_shape=(224, 224, 3)
+    )
+    net.trainable = False
+    return net
 
 
 def get_sorted_dict(unsortable_names):
@@ -76,3 +89,19 @@ def f1_m(y_true, y_pred):
     precision = precision_m(y_true, y_pred)
     recall = recall_m(y_true, y_pred)
     return 2 * ((precision * recall) / (precision + recall + K.epsilon()))
+
+
+def get_model():
+    net = get_net
+    new_model = Sequential()
+    new_model.add(net)
+    new_model.add(layers.Flatten())
+    new_model.add(layers.Dense(128, activation='relu'))
+    new_model.add(layers.Dropout(0.2))
+    new_model.add(layers.Dense(64, activation='relu'))
+    new_model.add(layers.Dense(1, activation='sigmoid'))
+    new_model.compile(loss='binary_crossentropy',
+                      optimizer='adam',
+                      metrics=['accuracy'])
+    new_model.summary()
+    return new_model

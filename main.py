@@ -1,10 +1,5 @@
-import os
 
-import pandas as pd
-import numpy as np
 from keras.applications import DenseNet121
-from keras.models import Sequential
-from keras import layers
 
 from data.preprocessing import ELImgPreprocessing
 from contextlib import redirect_stdout
@@ -36,20 +31,6 @@ def save_model(_model, _model_folder, idx):
     with open(os.path.join(_model_folder, f'modelsummary_{idx}.txt'), 'w') as f:
         with redirect_stdout(f):
             model.summary()
-
-
-def get_model():
-    new_model = Sequential()
-    new_model.add(densenet)
-    new_model.add(layers.Dense(64, activation='relu'))
-    new_model.add(layers.Dense(32, activation='relu'))
-    new_model.add(layers.Dense(16, activation='relu'))
-    new_model.add(layers.Dense(1, activation='sigmoid'))
-    new_model.compile(loss='binary_crossentropy',
-                      optimizer='adam',
-                      metrics=['accuracy'])
-    new_model.summary()
-    return new_model
 
 
 def fit_and_save(_model, _x_train, _y_train):
