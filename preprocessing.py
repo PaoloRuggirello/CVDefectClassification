@@ -6,17 +6,16 @@ from tqdm import tqdm
 from skimage import exposure
 import seam_carving
 
-
-def standardize_image(image):
-    image = (image - image.min()) / (image.max() - image.min())
-    return exposure.rescale_intensity(image, (0, 1), (0, 255))
-
-
 DATA_PATH_PROCESSED = "data/processed"
 DATA_IMG_W_PROCESSED = "images/w"
 DATA_IMG_NOT_W_PROCESSED = "images/not_w"
 DATA_IMAGES_PATH = "data/images"
 SAVE_IMGS = True
+
+
+def standardize_image(image):
+    image = (image - image.min()) / (image.max() - image.min())
+    return exposure.rescale_intensity(image, (0, 1), (0, 255))
 
 
 def apply_seam_carving(_img):
@@ -54,16 +53,12 @@ def preprocess():
     csv_dataframe = pd.read_csv('data/labels.csv', delim_whitespace=True)
     processed_data = []
     os.makedirs(DATA_PATH_PROCESSED, exist_ok=True)
-    if SAVE_IMGS:
-        os.makedirs(DATA_IMG_W_PROCESSED, exist_ok=True)
-        os.makedirs(DATA_IMG_NOT_W_PROCESSED, exist_ok=True)
 
     for _, row in tqdm(csv_dataframe.iterrows()):
         image_file, label = row['path'].split('/')[1], row['label']
         path = os.path.join(DATA_IMAGES_PATH, image_file)  # concat the path
         img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 
-        # gaussian filter
         img = apply_gaussian_blur(img)
 
         img = cv2.resize(img, (img_size, img_size))  # resize the image
@@ -74,10 +69,6 @@ def preprocess():
             not_working += 1
         else:
             working += 1
-
-        if SAVE_IMGS:
-            folder = DATA_IMG_NOT_W_PROCESSED if label else DATA_IMG_W_PROCESSED
-            cv2.imwrite(os.path.join(folder, image_file), img)
 
     processed_data_npy = np.array(processed_data, dtype=object)
     np.save(os.path.join(DATA_PATH_PROCESSED, "processed_data.npy"), processed_data_npy)
