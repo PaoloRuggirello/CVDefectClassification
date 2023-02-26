@@ -13,29 +13,6 @@ DATA_IMAGES_PATH = "data/images"
 SAVE_IMGS = True
 
 
-def standardize_image(image):
-    image = (image - image.min()) / (image.max() - image.min())
-    return exposure.rescale_intensity(image, (0, 1), (0, 255))
-
-
-def apply_seam_carving(_img):
-    src_h, src_w, _ = _img.shape
-    return seam_carving.resize(
-        _img, (src_w - 76, src_h - 76),
-        energy_mode='forward',  # Choose from {backward, forward}
-        order='width-first',  # Choose from {width-first, height-first}
-        keep_mask=None
-    )
-
-
-def apply_sobel(_img):
-    sobel_x = cv2.Sobel(_img, cv2.CV_64F, 1, 0, ksize=5)  # x
-    sobel_y = cv2.Sobel(_img, cv2.CV_64F, 0, 1, ksize=5)  # y
-    gradient_magnitude = np.sqrt(np.square(sobel_x) + np.square(sobel_y))
-    gradient_magnitude *= 255.0 / gradient_magnitude.max()
-    return gradient_magnitude
-
-
 def apply_opening(_img):
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9))
     return cv2.morphologyEx(_img, cv2.MORPH_OPEN, kernel)
@@ -55,23 +32,23 @@ def preprocess():
     os.makedirs(DATA_PATH_PROCESSED, exist_ok=True)
 
     for _, row in tqdm(csv_dataframe.iterrows()):
-        image_file, label = row['path'].split('/')[1], row['label']
-        path = os.path.join(DATA_IMAGES_PATH, image_file)  # concat the path
+        image_file, label = row['path'].split('/')[1], row['label']  # reading image path and image label
+        path = os.path.join(DATA_IMAGES_PATH, image_file)  # calculating image entire path
         img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 
         img = apply_gaussian_blur(img)
-
         img = cv2.resize(img, (img_size, img_size))  # resize the image
-        img = img.astype('uint8')
-        processed_data.append([np.array(img), label])
 
-        if label:
+        img = img.astype('uint8')  # Reducing memory usage for the image casting variables from float64 to int8
+        processed_data.append([np.array(img), label])  # Creating np.ndarray containing [image, label]
+
+        if label:  # Counting number of working and not working images
             not_working += 1
         else:
             working += 1
 
     processed_data_npy = np.array(processed_data, dtype=object)
-    np.save(os.path.join(DATA_PATH_PROCESSED, "processed_data.npy"), processed_data_npy)
+    np.save(os.path.join(DATA_PATH_PROCESSED, "processed_data.npy"), processed_data_npy)  # Saving preprocessed data inside processed_data.npy
     print("Working: ", working)
     print("Not Working: ", not_working)
 
