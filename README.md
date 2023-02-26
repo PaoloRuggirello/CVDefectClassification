@@ -27,59 +27,37 @@ This table also contains the standard deviation for the accuracy score.
 ## Execution instructions
 In this project you can decide if you want to perform only the preprocessing, the training or the test of the model.
 
-### Build virtual environment
-Remember to create a virtual environment before running the code. To do that you can follow these instructions:
+### Virtual Environment
+We suggest you to create a dedicated virtual environment before starting the execution.
+If you don't want to create it then just skip this section.
+
+To create the virtual environment follow these steps:
+1. Go to the project's root directory
+2. Create the virtual environment with the following command:
+> python3 -m venv venv/
+
+3. Activate it:
+> source venv/bin/activate
+
+### Installing dependencies
+To install all the needed dependencies you just need to run:
+> pip install -r requirements.txt
 
 
-### Prepprocessing
-To run the preprocessing you can easly run the following command in the root of the project
->
+### Preprocess
+To run the preprocessing on the data you can easily run the following command in the root of the project
+> python3 preprocess.py
 
+### Train
+To train a new model using the given 10 folds you can easily run the following command in the root of the project
+> python3 train.py
 
+N.B. Remember to run the preprocess.py before the train.py script if the file data > processed > processed_data.npy is missing.
 
+### Test
+If you want to perform only the test of the model you can simply execute the command:
+> python3 test.py
 
-Interessanti:
-Rimozione pattern -> https://stackoverflow.com/questions/52108147/how-can-i-remove-the-back-decorative-pattern-for-my-ocr
-https://arxiv.org/pdf/1807.02894.pdf
-https://www.mdpi.com/1424-8220/21/13/4292
-
-
-spunti:
-individuare gli outlayer
-normalizzare le immagini lavorando su brillantezza, alcune troppo scure.
-silency measure per trovare rotture.
-Provare gradiente per riconoscere pattern
-smoothness
-
-detect shape(small circles) and remove them
-
-estrarre n immagini diverse con filtri/altro e passarle in input ad una ccn (come se l'input layer fosse un layer di feature maps)
-
-
-
-Tentativi fatti
-thresholding -> global, adaptive, otus (Non buoni risultati in generale, ok su immagini pulite ma aggiunge rumore a quelle scure)
-normalizzazione immagine -> buoni risultati
-calcolo del gradiente con filtro laplaciano -> *2 perchè troppo anonimo
-gradiente sottratto a immagini per evidenziare problemi
-operazioni morfologiche -> opening, closing, dilatazioni e erosioni
-
-
-analisi concetrata sul gradiente:
-    incremento di 10 volte -> notiamo molto rumore sale e pepe
-    applicazione gradiente ad immagini non std -> rumore meno evidente, forse è più facile applicare i filtri a queste immagini piuttosto che a quelle standardizzate
-    implementazione filtro per rimozione sale e pepe
-    ottenuta buona sequenza con: std, grad, blur e sottrazione all'immagine
-    provo il threshold -> non ottengo risultati particolarmente discriminativi, va provato più approfonditamente
-
-analisi su opening:
-    sembra filtrare meglio opening con filtri circolare (11, 11)
-
-
-
-useful:
-RayTune -> https://h-huang.github.io/tutorials/beginner/hyperparameter_tuning_tutorial.html
-
-
-Possible implementation:
-optimizer: adam -> https://www.tensorflow.org/api_docs/python/tf/keras/optimizers
+From the root of the project.
+Be aware that best_model_weights folder must contain an '.h5' for each fold that has to be tested <br>
+(The index value of the model_{index}.h5 file is equal to fold_number - 1).
