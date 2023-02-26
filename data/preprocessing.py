@@ -29,7 +29,7 @@ class ELImgPreprocessing:
     IMG_SIZE = 224
 
     def apply_seam_carving(self, _img):
-        src_h, src_w = _img.shape
+        src_h, src_w, _ = _img.shape
         return seam_carving.resize(
             _img, (src_w - 76, src_h - 76),
             energy_mode='forward',  # Choose from {backward, forward}
@@ -48,10 +48,12 @@ class ELImgPreprocessing:
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9))
         return cv2.morphologyEx(_img, cv2.MORPH_OPEN, kernel)
 
+    def apply_gaussian_blur(self, img):
+        return cv2.GaussianBlur(img, (5, 5), 3)
+
     def preprocess(self):
         csv_dataframe = pd.read_csv('labels.csv', delim_whitespace=True)
         processed_data = []
-        processed_data_lbp = []
         os.makedirs(DATA_PATH_PROCESSED, exist_ok=True)
         if SAVE_IMGS:
             os.makedirs(DATA_IMG_W_PROCESSED, exist_ok=True)
@@ -60,20 +62,22 @@ class ELImgPreprocessing:
         for _, row in tqdm(csv_dataframe.iterrows()):
             image_file, label = row['path'].split('/')[1], row['label']
             path = os.path.join(DATA_IMAGES_PATH, image_file)  # concat the path
-            img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+            # img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+            img = cv2.imread(path, cv2.IMREAD_COLOR)
 
             # seam carving
             img = self.apply_seam_carving(img)
+            img = self.apply_gaussian_blur(img)
 
-            #sobel
-            img = self.apply_sobel(img)
+            # sobel
+            # img = self.apply_sobel(img)
 
-            #sum + sobel + image
+            # sum + sobel + image
             # img = img + sobel
             # img[np.where(img > 255)] = 255
 
-            #opening
-            #img = self.apply_opening(img)
+            # opening
+            # img = self.apply_opening(img)
 
             # # opening
             # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
@@ -82,8 +86,6 @@ class ELImgPreprocessing:
 
             # standardize
             # img = standardize_image(img)
-
-
 
             # img = cv2.resize(img, (self.IMG_SIZE, self.IMG_SIZE))  # resize the image
             # lbp_img = local_binary_pattern(img, 8, 1).astype('uint8')

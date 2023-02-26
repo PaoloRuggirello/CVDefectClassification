@@ -1,3 +1,5 @@
+import os.path
+
 from keras.models import load_model
 from common_utils import *
 
@@ -27,8 +29,8 @@ if __name__ == '__main__':
 
     analytics_table = dict()
     for i in range(10):
-        analytics_table[str(i)] = dict()
         print(f'Iteration {i}')
+        analytics_table[str(i)] = dict()
         x_test, y_test = split_samples_labels(dataset[test_folds[i].astype('uint32')])
 
         model = load_keras_model(i)
@@ -44,7 +46,6 @@ if __name__ == '__main__':
         print(f'F1 score: {analytics_table[str(i)]["f1"]}')
         print(f'Accuracy: {analytics_table[str(i)]["accuracy"]}')
         print("-----------------\n\n")
-
     sum_up_table = calculate_sum_up_table(analytics_table)
     pd.DataFrame(analytics_table).to_csv(os.path.join(OUTPUT_FOLDER, 'analytics_table.csv'))
     pd.DataFrame(sum_up_table, index=[0]).to_csv(os.path.join(OUTPUT_FOLDER, 'sum_up_table.csv'))
