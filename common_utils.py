@@ -92,7 +92,7 @@ def f1_m(y_true, y_pred):
 
 
 def get_model():
-    net = get_net
+    net = get_net()
     new_model = Sequential()
     new_model.add(net)
     new_model.add(layers.Flatten())

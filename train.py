@@ -91,6 +91,7 @@ if __name__ == '__main__':
         print(f'Accuracy: {accuracy}')
         print("-----------------\n\n")
 
+    sum_up_table = calculate_sum_up_table(analytics_table)
     pd.DataFrame(analytics_table).to_csv(os.path.join(model_folder, 'analytics_table.csv'))
-    pd.DataFrame(calculate_sum_up_table(analytics_table)).to_csv(os.path.join(model_folder, 'sum_up_table.csv'))
+    pd.DataFrame(sum_up_table, index=[0]).to_csv(os.path.join(model_folder, 'sum_up_table.csv'))
     print('END')
