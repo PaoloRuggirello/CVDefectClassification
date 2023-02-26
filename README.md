@@ -1,5 +1,41 @@
 # CVDefectClassification
-CV Challange
+### Powered By Simone Pio Caronia & Paolo Ruggirello
+
+## Project Structure
+In this project you will find several folders and files useful for code execution. <br>
+This project has 3 main scripts:
+- preprocess.py (used for data preprocessing)
+- train.py (used to train the cv model, uses the output of process.py)
+- test.py (used to execute only the test phase on 10 folds)
+
+The project also have several folders:
+- best_model_metrics (contains analytics table and sum up table of the best model)
+- best_model_weights (contains '.h5' files used to load model weights in test phase)
+- boostrap_folds (contains train and test folds info)
+- data (contains the dataset and the output of the preprocess.py script)
+- models (in this folder are stored the models trained using the train.py script)
+
+## 'Analytics' and 'Sum-up' tables
+You can find these tables (referring to the best model) inside the 'best_model_metrics' folder in the root of this project. <br>
+### Analytics table
+The Analytics table contains f1-score and accuracy-score for each fold of the best model.
+### Sum-Up table
+The Sum-Up table contains the mean values for both f1 and accuracy. <br>
+This table also contains the standard deviation for the accuracy score.
+
+
+## Execution instructions
+In this project you can decide if you want to perform only the preprocessing, the training or the test of the model.
+
+### Build virtual environment
+Remember to create a virtual environment before running the code. To do that you can follow these instructions:
+
+
+### Prepprocessing
+To run the preprocessing you can easly run the following command in the root of the project
+>
+
+
 
 
 Interessanti:
