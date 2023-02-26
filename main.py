@@ -28,23 +28,25 @@ def dataset_augmentation(_dataset):
 
 
 def save_model(_model, _model_folder, idx):
-    model.save(os.path.join(_model_folder, f'model_{idx}'))
+    _model.save_weights(os.path.join(_model_folder, f'model_{idx}.h5'))
     with open(os.path.join(_model_folder, f'modelsummary_{idx}.txt'), 'w') as f:
         with redirect_stdout(f):
-            model.summary()
+            _model.summary()
 
 
 def fit_and_save(_model, _x_train, _y_train):
-    early_stop = EarlyStopping(monitor='val_accuracy', mode='max')
-    model.fit(
+    early_stop = EarlyStopping(monitor='val_loss', mode='min', patience=5, restore_best_weights=True)
+    _model.fit(
         x=x_train,
         y=y_train,
-        batch_size=128,
-        epochs=5,
+        batch_size=32,
+        class_weight={0: 1, 1: 2.5},
+        epochs=20,
         validation_split=0.2,
         callbacks=[early_stop]
     )
-    save_model(model, model_folder, i)
+    save_model(_model, model_folder, i)
+    return _model
 
 
 if __name__ == '__main__':
