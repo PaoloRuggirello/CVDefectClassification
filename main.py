@@ -1,29 +1,30 @@
-
-from keras.applications import DenseNet121
-
 from data.preprocessing import ELImgPreprocessing
 from contextlib import redirect_stdout
 from datetime import datetime
 from keras.callbacks import EarlyStopping
 from common_utils import *
-
-# 0 -> cell works
-# 1 -> cell doesn't work
+import random as rnd
 
 WORKING = 0
 NOT_WORKING = 1
 
-IN_EXAM_W = ['images/cell0004.png', 'images/cell0067.png', 'images/cell0106.png']
-IN_EXAM_NOT_W = ['images/cell0165.png', 'images/cell0220.png', 'images/cell0001.png', 'images/cell0002.png', 'images/cell0057.png']
 
-PREPROCESS = False
+def data_augmentation(sample):
+    prob_ud = rnd.random()
+    prob_lr = rnd.random()
+    if prob_ud >= 0.5:
+        sample = np.flipud(sample)
+    if prob_lr >= 0.5:
+        sample = np.fliplr(sample)
+    return sample
 
-densenet = DenseNet121(
-    weights='imagenet',  # /kaggle/input/densenet-keras/DenseNet-BC-121-32-no-top.h5
-    include_top=False,
-    input_shape=(224, 224, 3)
-)
-densenet.trainable = False
+
+def dataset_augmentation(_dataset):
+    print("Augmenting dataset")
+    new_dataset = []
+    for sample in _dataset:
+        new_dataset.append(data_augmentation(sample))
+    return np.array(new_dataset)
 
 
 def save_model(_model, _model_folder, idx):
