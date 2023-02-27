@@ -3,8 +3,6 @@ import numpy as np
 import pandas as pd
 import os
 from tqdm import tqdm
-from skimage import exposure
-import seam_carving
 
 DATA_PATH_PROCESSED = "data/processed"
 DATA_IMG_W_PROCESSED = "images/w"
