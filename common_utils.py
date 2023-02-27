@@ -47,7 +47,7 @@ def get_folds(path):  # Obtaining 10 elements array where each entry contains th
     return np.array(folds, dtype=object)
 
 
-def split_samples_labels(_dataset):
+def split_samples_labels(_dataset): #split dataset into sample, label
     return np.array([x for x in _dataset[:, 0]]), np.array([y for y in _dataset[:, 1]])
 
 
@@ -74,7 +74,7 @@ def calculate_sum_up_table(analytics_table):
     return sum_up_table
 
 
-def get_model():
+def get_model(): #create sequential objct containing the model chosen
     net = get_net()
     new_model = Sequential()
     new_model.add(net)

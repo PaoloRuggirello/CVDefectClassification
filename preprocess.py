@@ -11,11 +11,6 @@ DATA_IMAGES_PATH = "data/images"
 SAVE_IMGS = True
 
 
-def apply_opening(_img):
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9))
-    return cv2.morphologyEx(_img, cv2.MORPH_OPEN, kernel)
-
-
 def apply_gaussian_blur(img):
     return cv2.GaussianBlur(img, (5, 5), 3)
 
