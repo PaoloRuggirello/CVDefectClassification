@@ -1,19 +1,20 @@
-# DenseNet-based model for Defect Classification on Solar Panels
-### Powered By Simone Pio Caronia & Paolo Ruggirello
+<img width="1000" alt="Screenshot 2023-02-27 at 11 45 18" src="https://user-images.githubusercontent.com/52169960/221543307-ca30d431-a1a3-4f28-a18e-dbd7c4180ed7.png">
+
+
 
 ## Project Structure
 In this project you will find several folders and files useful for code execution. <br>
 This project has 3 main scripts:
-- preprocess.py (used for data preprocessing and creation of npy file)
-- train.py (used to train the model, uses the output of preprocess.py)
-- test.py (used to execute only the test phase on 10 folds)
+- ***preprocess.py*** (used for data preprocessing and creation of npy file)
+- ***train.py*** (used to train the model, uses the output of preprocess.py)
+- ***test.py*** (used to execute only the test phase on 10 folds)
 
 The project also have several folders:
-- best_model_metrics (contains analytics table and sum up table of the best model)
-- best_model_weights (contains '.h5' files used to load model weights in test phase)
-- boostrap_folds (contains train and test folds info)
-- data (contains the dataset and the output of the preprocess.py script)
-- models (in this folder are stored the models trained using the train.py script)
+- ***best_model_metrics*** (contains analytics table and sum up table of the best model)
+- ***best_model_weights*** (contains '.h5' files used to load model weights in test phase)
+- ***boostrap_folds*** (contains train and test folds info)
+- ***data*** (contains the dataset and the output of the preprocess.py script)
+- ***models*** (in this folder are stored the models trained using the train.py script)
 
 ## <i><u>Analytics</u></i> and <i><u>Sum-up</u></i> tables
 You can find these tables (referring to the best model) inside the 'best_model_metrics' folder in the root of this project. <br>
